@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 typedef enum EditMode {
     REPLACE, INSERT
@@ -20,6 +21,7 @@ typedef struct EditorLine{
 } EditorLine;
 
 typedef struct EditorData{
+    char file_path[PATH_MAX];
     EditorLine* lines;
     int line_count;
     int line_capacity;

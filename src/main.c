@@ -19,20 +19,18 @@ SDL_Color fg = { 240, 240, 240, SDL_ALPHA_OPAQUE };
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    SDL_Surface *text;
-
     if (argc < 2) {
         printf("Please enter a file to edit.\n");
         return SDL_APP_FAILURE;
-    }else{
-        char path[PATH_MAX];
-        realpath(argv[1], path);
-        if (path == NULL){
-            printf("Path couldn't be resolved.");
-            return SDL_APP_FAILURE;
-        }
-        printf("resolved path: %s\n", path);
-    }   
+    }
+    
+    e_data = init_editor();
+    realpath(argv[1], e_data->file_path);
+    if (e_data->file_path == NULL){
+        printf("Path couldn't be resolved.");
+        return SDL_APP_FAILURE;
+    }
+
 
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer)) {
@@ -64,7 +62,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     // }
 
     SDL_StartTextInput(window);
-    e_data = init_editor();
 
     return SDL_APP_CONTINUE;
 }

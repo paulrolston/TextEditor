@@ -22,8 +22,6 @@ EditorData* init_editor(){
     return d;
 }
 
-
-
 EditorLine* get_line(EditorData* data){
     if (data->cursor_y > data->line_count) return NULL;
     return &(data->lines[data->cursor_y]);
