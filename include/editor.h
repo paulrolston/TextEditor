@@ -1,0 +1,32 @@
+#ifndef EDITOR_H
+#define EDITOR_H
+
+#define INITIAL_LINE_COUNT 4
+#include <SDL3/SDL.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct EditorLine{
+    char* text;
+    int capacity;
+    int length;
+    bool dirty;
+    SDL_Texture* texture;
+} EditorLine;
+
+typedef struct EditorData{
+    EditorLine* lines;
+    int line_count;
+    int line_capacity;
+    int cursor_y;
+    int cursor_x;
+} EditorData;
+
+EditorData* init_editor();
+EditorLine* get_line(EditorData* data);
+void line_backspace(EditorData* data, EditorLine* line);
+void append_line(EditorData* data, EditorLine* line, const char* text);
+void create_new_line(EditorData* data);
+
+#endif
