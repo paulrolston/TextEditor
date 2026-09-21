@@ -95,6 +95,16 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                         }
                         break;
                     }
+                    case SDLK_S:{
+                        FILE* file = fopen("/Users/paul/code/C/Text/test.txt","w");
+                        for (int li = 0; li < e_data->line_count;li++){
+                            EditorLine* line = &e_data->lines[li];
+                            // if (line->length == 0) fprintf()
+                            fprintf(file, "%s\n",line->text);
+                        }
+                        fclose(file);
+                        break;
+                    }
                 }
             }
             
