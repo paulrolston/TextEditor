@@ -71,16 +71,34 @@ void line_backspace(EditorData* data, EditorLine* line){
 }
 
 void append_line(EditorData* data, EditorLine* line, const char* text){
-    for (int i = 0; i < strlen(text); i++){
-        if (line->length+1 >= line->capacity){
-            line->capacity*=2;
-            line->text = realloc(line->text, sizeof(char)*line->capacity);
-        }
-        line->text[data->cursor_x++] = text[i];
-        line->length++;
-        line->dirty = true;
+    int len = strlen(text);
+    int to_end = line->length-data->cursor_x;
+    bool do_realloc = false;
+    while (line->length+len >= line->capacity){
+        // use 1.2 since most of the time this will be a single character overflow.
+        line->capacity*=1.2;
+        do_realloc = true;
     }
+    if (do_realloc){
+        printf("Realloc for this line.\n");
+        line->text = realloc(line->text, sizeof(char)*line->capacity);
+    }
+    switch (data->mode){
+        case REPLACE:{
+            memcpy(&line->text[data->cursor_x], text, len);
+            break;
+        }
+        case INSERT:{
+            if (to_end > 0) memmove(&line->text[data->cursor_x+len],&line->text[data->cursor_x],to_end);
+            memcpy(&line->text[data->cursor_x], text, len);
+            break;
+        }
+    }
+    data->cursor_x+=len;
+    if (data->mode == INSERT) line->length+=len;
+    else if(data->mode == REPLACE && data->cursor_x>line->length) line->length=data->cursor_x;
     line->text[line->length] = 0;
+    line->dirty = true;
 }
 
 void create_new_line(EditorData* data){
