@@ -18,6 +18,7 @@ EditorData* init_editor(){
     d->cursor_x = 0;
     d->cursor_y = 0;
     d->lines[0] = create_line();
+    d->mode = INSERT;
     return d;
 }
 

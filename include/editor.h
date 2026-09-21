@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef enum EditMode {
+    REPLACE, INSERT
+} EditMode;
+
 typedef struct EditorLine{
     char* text;
     int capacity;
@@ -21,6 +25,7 @@ typedef struct EditorData{
     int line_capacity;
     int cursor_y;
     int cursor_x;
+    EditMode mode;
 } EditorData;
 
 EditorData* init_editor();
