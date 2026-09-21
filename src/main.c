@@ -1,5 +1,6 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <ctype.h>
+#include <limits.h>
 #include "editor.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -19,6 +20,19 @@ SDL_Color fg = { 240, 240, 240, SDL_ALPHA_OPAQUE };
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_Surface *text;
+
+    if (argc < 2) {
+        printf("Please enter a file to edit.\n");
+        return SDL_APP_FAILURE;
+    }else{
+        char path[PATH_MAX];
+        realpath(argv[1], path);
+        if (path == NULL){
+            printf("Path couldn't be resolved.");
+            return SDL_APP_FAILURE;
+        }
+        printf("resolved path: %s\n", path);
+    }   
 
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer)) {
