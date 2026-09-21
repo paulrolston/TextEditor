@@ -75,6 +75,23 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             if (event->key.key == SDLK_BACKSPACE) {
                 line_backspace(e_data, l);
             }
+            if (event->key.mod & (SDL_KMOD_LCTRL|SDL_KMOD_RCTRL)){
+                switch (event->key.key){
+                    case SDLK_R:{
+                        if (e_data->mode == REPLACE) return SDL_APP_CONTINUE;
+                        printf("Now in replace mode!\n");
+                        e_data->mode = REPLACE;
+                        break;
+                    }
+                    case SDLK_I:{
+                        if (e_data->mode == INSERT) return SDL_APP_CONTINUE;
+                        printf("Now in insert mode!\n");
+                        e_data->mode = INSERT;
+                        break;
+                    }
+                }
+            }
+            
             if (event->key.key == SDLK_UP){
                 if (e_data->cursor_y > 0) {
                     e_data->cursor_y--;
