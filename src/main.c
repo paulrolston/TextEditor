@@ -89,6 +89,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                         e_data->mode = INSERT;
                         break;
                     }
+                    case SDLK_P:{
+                        for (int li = 0; li < e_data->line_count;li++){
+                            printf("%s\n",e_data->lines[li].text);
+                        }
+                        break;
+                    }
                 }
             }
             
