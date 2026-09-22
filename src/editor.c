@@ -99,6 +99,19 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
     line->dirty = true;
 }
 
+void load_file(EditorData* data){
+    FILE* file = fopen(data->file_path, "r");
+    if (file != NULL){
+        char line_buf[1024];
+        while (fgets(line_buf, 1024, file)){
+            line_buf[strcspn(line_buf,"\r\n")] = 0;
+            append_line(data,get_line(data),line_buf);
+            create_new_line(data);
+        }
+    }
+    fclose(file);
+}
+
 void create_new_line(EditorData* data){
     if (data->line_count+1 >= data->line_capacity) {
         data->line_capacity*=2;

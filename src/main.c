@@ -23,14 +23,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Please enter a file to edit.\n");
         return SDL_APP_FAILURE;
     }
-    
+
     e_data = init_editor();
+    //Get absolute path to the provided file.
     realpath(argv[1], e_data->file_path);
     if (e_data->file_path == NULL){
         printf("Path couldn't be resolved.");
         return SDL_APP_FAILURE;
     }
 
+    //Now load file contents into our struct
+    load_file(e_data);
+    
 
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer)) {
@@ -49,17 +53,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Couldn't open font: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
-    /* Create the text */
-    // text = TTF_RenderText_Shaded(font, "Hello World!", 0, color, transparent);
-    // if (text) {
-    //     texture = SDL_CreateTextureFromSurface(renderer, text);
-    //     SDL_DestroySurface(text);
-    // }
-    // if (!texture) {
-    //     SDL_Log("Couldn't create text: %s\n", SDL_GetError());
-    //     return SDL_APP_FAILURE;
-    // }
 
     SDL_StartTextInput(window);
 
@@ -107,7 +100,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                         break;
                     }
                     case SDLK_S:{
-                        FILE* file = fopen("/Users/paul/code/C/Text/test.txt","w");
+                        FILE* file = fopen(e_data->file_path,"w");
+                        if (file == NULL) {
+                            printf("Error opening file: [%s]\n", e_data->file_path);
+                            return SDL_APP_FAILURE;
+                        }
                         for (int li = 0; li < e_data->line_count;li++){
                             EditorLine* line = &e_data->lines[li];
                             // if (line->length == 0) fprintf()
