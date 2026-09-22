@@ -20,7 +20,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Please enter a file to edit.\n");
         return SDL_APP_FAILURE;
     }
-    text_window = create_window(10,0,780,600);
+    text_window = create_window(0,0,800,600);
     //Get absolute path to the provided file.
     realpath(argv[1], text_window->data->file_path);
     if (text_window->data->file_path == NULL){
