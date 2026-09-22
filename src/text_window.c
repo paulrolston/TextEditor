@@ -6,7 +6,7 @@ Text_window* create_window(int x, int y, int w, int h){
     window->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=SDL_ALPHA_OPAQUE};
     window->data = init_editor();
     window->x = x;
-    window->h = h;
+    window->y = y;
     window->w = w;
     window->h = h;
     return window;

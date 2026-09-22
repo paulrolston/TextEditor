@@ -20,18 +20,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Please enter a file to edit.\n");
         return SDL_APP_FAILURE;
     }
-    text_window = create_window(0,0,800,600);
+    text_window = create_window(0,30,800,580);
     //Get absolute path to the provided file.
     realpath(argv[1], text_window->data->file_path);
     if (text_window->data->file_path == NULL){
         printf("Path couldn't be resolved.");
         return SDL_APP_FAILURE;
     }
-
     //Now load file contents into our struct
     load_file(text_window->data);
-    
-
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer)) {
         SDL_Log("Couldn't create window and renderer: %s\n", SDL_GetError());
@@ -152,8 +149,20 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+    float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+    int w, h;
+    SDL_FRect tool_bar = {0};
+    tool_bar.w = w*scale;
+    tool_bar.h = 30*scale;
+    SDL_GetWindowSize(SDL_GetRenderWindow(renderer), &w, &h);
+    //draw the file name in a toolbar.
+    SDL_SetRenderDrawColor(renderer, 25,25,30,255);
+    SDL_RenderFillRect(renderer, &tool_bar);
+    SDL_SetRenderDrawColor(renderer, 50,50,55,255);
+    SDL_RenderRect(renderer, &tool_bar);
+    //draw the text window
     draw_window(renderer, font, text_window);
     SDL_RenderPresent(renderer);
     return SDL_APP_CONTINUE;
