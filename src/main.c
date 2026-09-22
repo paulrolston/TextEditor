@@ -13,9 +13,6 @@ static TTF_Font *font = NULL;
 
 Text_window* text_window=NULL;
 
-SDL_Color bg = { 0, 0, 0, SDL_ALPHA_TRANSPARENT };
-SDL_Color fg = { 240, 240, 240, SDL_ALPHA_OPAQUE };
-
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {

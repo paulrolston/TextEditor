@@ -73,8 +73,7 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
     int to_end = line->length-data->cursor_x;
     bool do_realloc = false;
     while (line->length+len >= line->capacity){
-        // use 1.2 since most of the time this will be a single character overflow.
-        line->capacity*=1.2;
+        line->capacity*=2.0;
         do_realloc = true;
     }
     if (do_realloc){
