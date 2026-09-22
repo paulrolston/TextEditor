@@ -27,6 +27,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Path couldn't be resolved.");
         return SDL_APP_FAILURE;
     }
+    char* t = strrchr(text_window->data->file_path, '/');
+    if (t == NULL){
+        strcpy(text_window->data->file_name, text_window->data->file_path);
+    }else{
+        strcpy(text_window->data->file_name, (t+1));
+    }
     //Now load file contents into our struct
     load_file(text_window->data);
     /* Create the window */
@@ -164,7 +170,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_RenderRect(renderer, &tool_bar);
     // SDL_SetRenderDrawColor(renderer, 240,240,240,255);
     char text[100] = "File: \0";
-    strcat(text, text_window->data->file_path);
+    strcat(text, text_window->data->file_name);
     SDL_Surface* file_surface = TTF_RenderText_Shaded(font,text,0,text_window->foreground,(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT});
     SDL_Texture* file_tex = SDL_CreateTextureFromSurface(renderer, file_surface);
     SDL_DestroySurface(file_surface);
