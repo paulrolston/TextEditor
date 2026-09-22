@@ -30,7 +30,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     //Now load file contents into our struct
     load_file(text_window->data);
     /* Create the window */
-    if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_Log("Couldn't create window and renderer: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
@@ -154,13 +154,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_RenderClear(renderer);
     int w, h;
     SDL_FRect tool_bar = {0};
-    tool_bar.w = w*scale;
-    tool_bar.h = 30*scale;
     SDL_GetWindowSize(SDL_GetRenderWindow(renderer), &w, &h);
+    tool_bar.w = (w)*scale;
+    tool_bar.h = 30*scale;
     //draw the file name in a toolbar.
-    SDL_SetRenderDrawColor(renderer, 25,25,30,255);
+    SDL_SetRenderDrawColor(renderer, 15,15, 18,255);
     SDL_RenderFillRect(renderer, &tool_bar);
-    SDL_SetRenderDrawColor(renderer, 50,50,55,255);
+    SDL_SetRenderDrawColor(renderer, 200,200,220,255);
     SDL_RenderRect(renderer, &tool_bar);
     //draw the text window
     draw_window(renderer, font, text_window);
