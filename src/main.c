@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include "editor.h"
+#include "toolbar.h"
 #include "text_window.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -10,8 +11,8 @@
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static TTF_Font *font = NULL;
-
-Text_window* text_window=NULL;
+static Toolbar* tool_bar = NULL;
+static Text_window* text_window=NULL;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -52,6 +53,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Couldn't open font: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+
+    tool_bar = create_toolbar();
+    change_text(tool_bar,text_window->data->file_name,renderer,font);
 
     SDL_StartTextInput(window);
 
@@ -158,27 +162,28 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    int w, h;
-    SDL_FRect tool_bar = {0};
-    SDL_GetWindowSize(SDL_GetRenderWindow(renderer), &w, &h);
-    tool_bar.w = (w)*scale;
-    tool_bar.h = 30*scale;
-    //draw the file name in a toolbar.
-    SDL_SetRenderDrawColor(renderer, 15,15, 18,255);
-    SDL_RenderFillRect(renderer, &tool_bar);
-    SDL_SetRenderDrawColor(renderer, 200,200,220,255);
-    SDL_RenderRect(renderer, &tool_bar);
-    // SDL_SetRenderDrawColor(renderer, 240,240,240,255);
-    char text[100] = "Editing: \0";
-    strcat(text, text_window->data->file_name);
-    SDL_Surface* file_surface = TTF_RenderText_Shaded(font,text,0,text_window->foreground,(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT});
-    SDL_Texture* file_tex = SDL_CreateTextureFromSurface(renderer, file_surface);
-    SDL_DestroySurface(file_surface);
-    SDL_FRect file_rect = {tool_bar.x,tool_bar.y};
-    SDL_GetTextureSize(file_tex,&file_rect.w,&file_rect.h);
-    file_rect.y = (tool_bar.h-file_rect.h)*0.5;
-    file_rect.x = 8*scale;
-    SDL_RenderTexture(renderer, file_tex,NULL,&file_rect);
+    draw_toolbar(renderer, tool_bar);
+    // int w, h;
+    // SDL_FRect tool_bar = {0};
+    // SDL_GetWindowSize(SDL_GetRenderWindow(renderer), &w, &h);
+    // tool_bar.w = (w)*scale;
+    // tool_bar.h = 30*scale;
+    // //draw the file name in a toolbar.
+    // SDL_SetRenderDrawColor(renderer, 15,15, 18,255);
+    // SDL_RenderFillRect(renderer, &tool_bar);
+    // SDL_SetRenderDrawColor(renderer, 200,200,220,255);
+    // SDL_RenderRect(renderer, &tool_bar);
+    // // SDL_SetRenderDrawColor(renderer, 240,240,240,255);
+    // char text[100] = "Editing: \0";
+    // strcat(text, text_window->data->file_name);
+    // SDL_Surface* file_surface = TTF_RenderText_Shaded(font,text,0,text_window->foreground,(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT});
+    // SDL_Texture* file_tex = SDL_CreateTextureFromSurface(renderer, file_surface);
+    // SDL_DestroySurface(file_surface);
+    // SDL_FRect file_rect = {tool_bar.x,tool_bar.y};
+    // SDL_GetTextureSize(file_tex,&file_rect.w,&file_rect.h);
+    // file_rect.y = (tool_bar.h-file_rect.h)*0.5;
+    // file_rect.x = 8*scale;
+    // SDL_RenderTexture(renderer, file_tex,NULL,&file_rect);
     //draw the text window
     draw_window(renderer, font, text_window);
     SDL_RenderPresent(renderer);

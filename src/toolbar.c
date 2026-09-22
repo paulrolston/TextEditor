@@ -18,6 +18,8 @@ Toolbar* create_toolbar(){
     tb->border = (SDL_Color){.r=200,.g=200,.b=200,.a=255};
     tb->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=255};
     tb->text_t = NULL;
+    tb->text[0] = 0;
+    return tb;
 }
 
 void change_text(Toolbar* tb, char* new_text, SDL_Renderer* r, TTF_Font* font){
@@ -47,7 +49,7 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
     };
     SDL_SetRenderDrawColor(renderer, tb->background.r,tb->background.g, tb->background.b,tb->background.a);
     SDL_RenderFillRect(renderer, &scaled);
-    SDL_SetRenderDrawColor(renderer, tb->foreground.r,tb->border.g, tb->border.b,tb->border.a);
+    SDL_SetRenderDrawColor(renderer, tb->border.r,tb->border.g, tb->border.b,tb->border.a);
     SDL_RenderRect(renderer, &scaled);
     if (tb->text_t != NULL) SDL_RenderTexture(renderer, tb->text_t,NULL,&tb->text_r);
 }
