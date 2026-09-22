@@ -169,13 +169,15 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_SetRenderDrawColor(renderer, 200,200,220,255);
     SDL_RenderRect(renderer, &tool_bar);
     // SDL_SetRenderDrawColor(renderer, 240,240,240,255);
-    char text[100] = "File: \0";
+    char text[100] = "Editing: \0";
     strcat(text, text_window->data->file_name);
     SDL_Surface* file_surface = TTF_RenderText_Shaded(font,text,0,text_window->foreground,(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT});
     SDL_Texture* file_tex = SDL_CreateTextureFromSurface(renderer, file_surface);
     SDL_DestroySurface(file_surface);
     SDL_FRect file_rect = {tool_bar.x,tool_bar.y};
     SDL_GetTextureSize(file_tex,&file_rect.w,&file_rect.h);
+    file_rect.y = (tool_bar.h-file_rect.h)*0.5;
+    file_rect.x = 8*scale;
     SDL_RenderTexture(renderer, file_tex,NULL,&file_rect);
     //draw the text window
     draw_window(renderer, font, text_window);
