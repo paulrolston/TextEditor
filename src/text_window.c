@@ -13,24 +13,29 @@ Text_window* create_window(int x, int y, int w, int h){
 
 void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
     EditorData* data = window->data;
+    SDL_Window* w = SDL_GetRenderWindow(renderer);
+    float scale = SDL_GetWindowDisplayScale(w);
+    SDL_SetRenderDrawColor(renderer, window->background.r,window->background.g,window->background.b,window->background.a);
+    SDL_RenderFillRect(renderer, &(SDL_FRect){window->x*scale,window->y*scale,window->w*scale,window->h*scale});
     if (data == NULL) return;
     float text_height = TTF_GetFontHeight(font);
-    SDL_FRect dst = {.x=5,.y=5,.w=window->w,.h=window->h};
+    SDL_FRect dst = {.x=5,.y=5,.w=0,.h=0};
     for (int i = 0; i < data->line_count; i++){
         EditorLine* l = &(data->lines[i]);
         if (l == NULL) continue;
         if (l->dirty){
             if (l->texture != NULL) SDL_DestroyTexture(l->texture);
             SDL_Surface *surface = TTF_RenderText_Shaded(font,l->text,l->length,window->foreground,window->background);
+            SDL_SetSurfaceClipRect(surface, &(SDL_Rect){window->x*scale,window->y*scale,window->w*scale,window->h*scale});
             l->texture = SDL_CreateTextureFromSurface(renderer, surface);
             SDL_DestroySurface(surface);
         }
-        // SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
-        dst.y = window->y + 5 + text_height*i;
-        dst.x += window->x;
+        SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
+        dst.y = (window->y + 5)*scale + text_height*i;
+        dst.x += window->x * scale;
         SDL_RenderTexture(renderer,l->texture,NULL,&dst);
     }
-    SDL_SetRenderDrawColor(renderer, window->foreground.r,window->foreground.a,window->foreground.a,window->foreground.a);
+    SDL_SetRenderDrawColor(renderer, window->foreground.r,window->foreground.g,window->foreground.b,window->foreground.a);
     int width = 0;
     int h = 0;
     TTF_GetStringSize(font,get_line(data)->text,data->cursor_x,&width,&h);
