@@ -2,16 +2,16 @@
 #include <ctype.h>
 #include <limits.h>
 #include "editor.h"
+#include "text_window.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
-static SDL_Texture *texture = NULL;
 static TTF_Font *font = NULL;
 
-EditorData* e_data = NULL;
+Text_window* text_window=NULL;
 
 SDL_Color bg = { 0, 0, 0, SDL_ALPHA_TRANSPARENT };
 SDL_Color fg = { 240, 240, 240, SDL_ALPHA_OPAQUE };
@@ -23,17 +23,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Please enter a file to edit.\n");
         return SDL_APP_FAILURE;
     }
-
-    e_data = init_editor();
+    text_window = create_window(10,0,780,600);
     //Get absolute path to the provided file.
-    realpath(argv[1], e_data->file_path);
-    if (e_data->file_path == NULL){
+    realpath(argv[1], text_window->data->file_path);
+    if (text_window->data->file_path == NULL){
         printf("Path couldn't be resolved.");
         return SDL_APP_FAILURE;
     }
 
     //Now load file contents into our struct
-    load_file(e_data);
+    load_file(text_window->data);
     
 
     /* Create the window */
@@ -65,86 +64,86 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     switch (event->type){
         case SDL_EVENT_QUIT: return SDL_APP_SUCCESS;
         case SDL_EVENT_TEXT_INPUT:{
-            EditorLine* l = get_line(e_data);
+            EditorLine* l = get_line(text_window->data);
             if (l == NULL) break;
-            append_line(e_data, l, event->text.text);
+            append_line(text_window->data, l, event->text.text);
             break;
         }
         case SDL_EVENT_KEY_DOWN:{
-            EditorLine* l = get_line(e_data);
+            EditorLine* l = get_line(text_window->data);
             if (l == NULL) break;
             if (event->key.key == SDLK_RETURN){
-                create_new_line(e_data);
+                create_new_line(text_window->data);
             }
             if (event->key.key == SDLK_BACKSPACE) {
-                line_backspace(e_data, l);
+                line_backspace(text_window->data, l);
             }
             if (event->key.mod & (SDL_KMOD_LCTRL|SDL_KMOD_RCTRL)){
                 switch (event->key.key){
                     case SDLK_R:{
-                        if (e_data->mode == REPLACE) return SDL_APP_CONTINUE;
+                        if (text_window->data->mode == REPLACE) return SDL_APP_CONTINUE;
                         printf("Now in replace mode!\n");
-                        e_data->mode = REPLACE;
+                        text_window->data->mode = REPLACE;
                         break;
                     }
                     case SDLK_I:{
-                        if (e_data->mode == INSERT) return SDL_APP_CONTINUE;
+                        if (text_window->data->mode == INSERT) return SDL_APP_CONTINUE;
                         printf("Now in insert mode!\n");
-                        e_data->mode = INSERT;
+                        text_window->data->mode = INSERT;
                         break;
                     }
                     case SDLK_P:{
-                        for (int li = 0; li < e_data->line_count;li++){
-                            printf("%s\n",e_data->lines[li].text);
+                        for (int li = 0; li < text_window->data->line_count;li++){
+                            printf("%s\n",text_window->data->lines[li].text);
                         }
                         break;
                     }
                     case SDLK_S:{
-                        save_file(e_data);
+                        save_file(text_window->data);
                         break;
                     }
                 }
             }
             
             if (event->key.key == SDLK_UP){
-                if (e_data->cursor_y > 0) {
-                    e_data->cursor_y--;
-                    int len = get_line(e_data)->length;
-                    if (e_data->cursor_x > len) {
-                        e_data->cursor_x = len;
+                if (text_window->data->cursor_y > 0) {
+                    text_window->data->cursor_y--;
+                    int len = get_line(text_window->data)->length;
+                    if (text_window->data->cursor_x > len) {
+                        text_window->data->cursor_x = len;
                     }
                 }
                 return SDL_APP_CONTINUE;
             }
             if (event->key.key == SDLK_DOWN){
-                if (e_data->cursor_y +1 < e_data->line_count) {
-                    e_data->cursor_y++;
-                    int len = get_line(e_data)->length;
-                    if (e_data->cursor_x > len) {
-                        e_data->cursor_x = len;
+                if (text_window->data->cursor_y +1 < text_window->data->line_count) {
+                    text_window->data->cursor_y++;
+                    int len = get_line(text_window->data)->length;
+                    if (text_window->data->cursor_x > len) {
+                        text_window->data->cursor_x = len;
                     }
                 }
                 return SDL_APP_CONTINUE;
             }
             if (event->key.key == SDLK_LEFT){
-                if (e_data->cursor_x == 0) {
-                    if (e_data->cursor_y > 0) {
-                        e_data->cursor_y--;
-                        e_data->cursor_x = e_data->lines[e_data->cursor_y].length;
+                if (text_window->data->cursor_x == 0) {
+                    if (text_window->data->cursor_y > 0) {
+                        text_window->data->cursor_y--;
+                        text_window->data->cursor_x = text_window->data->lines[text_window->data->cursor_y].length;
                     }
                     return SDL_APP_CONTINUE;
                 }
-                e_data->cursor_x--;
+                text_window->data->cursor_x--;
             }
             if (event->key.key == SDLK_RIGHT){
-                if (e_data->cursor_x==e_data->lines[e_data->cursor_y].length){
-                    if (e_data->cursor_y < e_data->line_count-1){
-                        e_data->cursor_x=0;
-                        e_data->cursor_y++;
+                if (text_window->data->cursor_x==text_window->data->lines[text_window->data->cursor_y].length){
+                    if (text_window->data->cursor_y < text_window->data->line_count-1){
+                        text_window->data->cursor_x=0;
+                        text_window->data->cursor_y++;
                     }
                     return SDL_APP_CONTINUE;
                 }
-                e_data->cursor_x++;
+                text_window->data->cursor_x++;
             }
         }
         break;
@@ -156,35 +155,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-    SDL_SetRenderDrawColor(renderer, 25, 25, 30, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    float text_height = TTF_GetFontHeight(font);
-    SDL_FRect dst = {.x=5,.y=5};
-    for (int i = 0; i < e_data->line_count; i++){
-        EditorLine* l = &(e_data->lines[i]);
-        if (l == NULL) continue;
-        if (l->dirty){
-            if (l->texture != NULL) SDL_DestroyTexture(l->texture);
-            SDL_Surface *surface = TTF_RenderText_Shaded(font,l->text,l->length,fg,bg);
-            l->texture = SDL_CreateTextureFromSurface(renderer, surface);
-            SDL_DestroySurface(surface);
-        }
-        SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
-        dst.y = 5 + text_height*i;
-        SDL_RenderTexture(renderer,l->texture,NULL,&dst);
-    }
-    SDL_RenderTexture(renderer, texture, NULL, &dst);
-    
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    int width = 0;
-    int h = 0;
-    TTF_GetStringSize(font,get_line(e_data)->text,e_data->cursor_x,&width,&h);
-    float y_off = 5+h*e_data->cursor_y;
-    if (e_data->cursor_x == 0) width = 0;
-    // float x_off = e_data->cursor_x*12;
-    SDL_FRect cursor =  {.x=5+width,.y=y_off,.w=2,.h=h};
-    SDL_RenderFillRect(renderer, &cursor);
-    // SDL_RenderLine(renderer, 5+x_off,y_off,5+x_off,text_height+y_off+5);
+    draw_window(renderer, font, text_window);
     SDL_RenderPresent(renderer);
     return SDL_APP_CONTINUE;
 }

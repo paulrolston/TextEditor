@@ -11,7 +11,7 @@ add_subdirectory(vendored/SDL_ttf EXCLUDE_FROM_ALL)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_executable(text src/main.c src/editor.c)
+add_executable(text src/main.c src/editor.c src/text_window.c)
 
 target_link_libraries(text PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3)
 
