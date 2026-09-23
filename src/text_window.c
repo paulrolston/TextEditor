@@ -9,6 +9,7 @@ Text_window* create_window(int x, int y, int w, int h){
     window->y = y;
     window->w = w;
     window->h = h;
+    window->display_numbers = false;
     return window;
 }
 

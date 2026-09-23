@@ -11,6 +11,7 @@ typedef struct Text_window {
     int x, y, w, h;
     SDL_Color background, foreground;
     EditorData* data;
+    bool display_numbers;
 } Text_window;
 
 //Return a pointer to a text_window.
