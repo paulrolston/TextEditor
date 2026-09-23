@@ -60,7 +60,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     change_text(tool_bar,text_window->data->file_name,renderer,font);
 
     save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
-    (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
+    (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
+    NULL, NULL, NULL);
     
 
     SDL_StartTextInput(window);
@@ -166,6 +167,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
+    //Update components.
+    update_button(save_button);
+    
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_toolbar(renderer, tool_bar);
