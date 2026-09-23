@@ -4,6 +4,7 @@
 #include "editor.h"
 #include "toolbar.h"
 #include "text_window.h"
+#include "button.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -13,6 +14,16 @@ static SDL_Renderer *renderer = NULL;
 static TTF_Font *font = NULL;
 static Toolbar* tool_bar = NULL;
 static Text_window* text_window=NULL;
+static Button* save_button=NULL;
+
+void save_callback(Button* b, void* data) {
+    EditorData * e_data = (EditorData *) data;
+    if (e_data == NULL) {
+        printf("Save: data passed was NULL\n");
+        return;
+    }
+    save_file(e_data);
+}
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -57,6 +68,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     tool_bar = create_toolbar();
     change_text(tool_bar,text_window->data->file_name,renderer,font);
 
+    save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
+    (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
+    NULL, save_callback, NULL, (void *) text_window->data);
+    
     SDL_StartTextInput(window);
 
     return SDL_APP_CONTINUE;
@@ -160,9 +175,17 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
+    //Update components.
+    update_button(save_button);
+    
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_toolbar(renderer, tool_bar);
+    //update button position.
+    save_button->button_r.x = tool_bar->toolbar_r.x + (tool_bar->toolbar_r.w - save_button->button_r.w) - 4;
+    save_button->button_r.y = tool_bar->toolbar_r.y+4;
+    //draw button
+    draw_button(renderer, save_button);
     //draw the text window
     draw_window(renderer, font, text_window);
     SDL_RenderPresent(renderer);
