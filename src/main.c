@@ -4,6 +4,7 @@
 #include "editor.h"
 #include "toolbar.h"
 #include "text_window.h"
+#include "button.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -13,6 +14,7 @@ static SDL_Renderer *renderer = NULL;
 static TTF_Font *font = NULL;
 static Toolbar* tool_bar = NULL;
 static Text_window* text_window=NULL;
+static Button* save_button=NULL;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -56,6 +58,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     tool_bar = create_toolbar();
     change_text(tool_bar,text_window->data->file_name,renderer,font);
+
+    save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
+    (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
+    
 
     SDL_StartTextInput(window);
 
@@ -163,25 +169,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_toolbar(renderer, tool_bar);
-    //temp button drawing.
-    SDL_FRect button = {0};
-    button.w = 100;
-    button.h = tool_bar->toolbar_r.h-8;
-    button.x = (tool_bar->toolbar_r.x + (tool_bar->toolbar_r.w - button.w)) - 4;
-    button.y = tool_bar->toolbar_r.y+4;
-    SDL_SetRenderDrawColor(renderer,100,100,115,SDL_ALPHA_OPAQUE);
-    SDL_RenderFillRect(renderer, &(SDL_FRect){button.x*scale,button.y*scale,button.w*scale,button.h*scale});
-    SDL_SetRenderDrawColor(renderer,240,240,255,SDL_ALPHA_OPAQUE);
-    SDL_RenderRect(renderer, &(SDL_FRect){button.x*scale,button.y*scale,button.w*scale,button.h*scale});
-    SDL_Surface* s = TTF_RenderText_Shaded(font, "Save", 0, (SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_TRANSPARENT});
-    SDL_Texture* t = SDL_CreateTextureFromSurface(renderer, s);
-    SDL_FRect text_r = {0};
-    SDL_GetTextureSize(t, &text_r.w,&text_r.h);
-    text_r.x = (button.x*scale + (button.w*scale-text_r.w)*0.5);
-    text_r.y = (button.y*scale + (button.h*scale-text_r.h)*0.5)-2;
-    SDL_RenderTexture(renderer, t,NULL, &text_r);
-    SDL_DestroySurface(s);
-    // SDL_DestroyTexture(t);
+    //update button position.
+    save_button->button_r.x = tool_bar->toolbar_r.x + (tool_bar->toolbar_r.w - save_button->button_r.w) - 4;
+    save_button->button_r.y = tool_bar->toolbar_r.y+4;
+    //draw button
+    draw_button(renderer, save_button);
     //draw the text window
     draw_window(renderer, font, text_window);
     SDL_RenderPresent(renderer);
