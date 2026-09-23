@@ -34,13 +34,14 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
         if (l == NULL) continue;
         if (l->dirty){
             if (l->texture != NULL) SDL_DestroyTexture(l->texture);
+            
             SDL_Surface *surface = TTF_RenderText_Shaded(font,l->text,l->length,window->foreground,window->background);
             l->texture = SDL_CreateTextureFromSurface(renderer, surface);
             SDL_DestroySurface(surface);
         }
         SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
         dst.y = (window->y)*scale+5+text_height*i;
-        dst.x = (window->x+5)*scale;
+        dst.x = (window->x+5)*scale + ((window->display_numbers) ? 15*scale : 0);
         SDL_RenderTexture(renderer,l->texture,NULL,&dst);
     }
     SDL_SetRenderDrawColor(renderer, window->foreground.r,window->foreground.g,window->foreground.b,window->foreground.a);
