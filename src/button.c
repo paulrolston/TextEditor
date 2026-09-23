@@ -3,7 +3,7 @@
 Button* create_button(SDL_Renderer* rend, TTF_Font* font, 
     const char* text, float x, float y, float w, float h, 
     SDL_Color background, SDL_Color border, SDL_Color foreground, 
-    ButtonCallback down, ButtonCallback clicked, ButtonCallback released) {
+    ButtonCallback down, ButtonCallback clicked, ButtonCallback released, void* data) {
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(rend));
     Button* b = malloc(sizeof(Button));
     strcpy(b->text, text);
@@ -26,6 +26,7 @@ Button* create_button(SDL_Renderer* rend, TTF_Font* font,
     b->pressed_cb = down;
     b->released_cb = released;
     b->clicked_cb = clicked;
+    b->callback_data = data;
     return b;
 }
 
@@ -46,12 +47,12 @@ void update_button(Button* b){
     //After updating state, call the relevant callbacks
     if (b->isPressed){
         if (!was_pressed){
-            if (b->clicked_cb) b->clicked_cb(b, NULL);
+            if (b->clicked_cb) b->clicked_cb(b, b->callback_data);
         }
-        if (b->pressed_cb) b->pressed_cb(b, NULL);
+        if (b->pressed_cb) b->pressed_cb(b, b->callback_data);
     }
     if (b->isReleased){
-        if (b->released_cb) b->released_cb(b, NULL);
+        if (b->released_cb) b->released_cb(b, b->callback_data);
     }
 }
 

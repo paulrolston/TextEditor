@@ -16,6 +16,15 @@ static Toolbar* tool_bar = NULL;
 static Text_window* text_window=NULL;
 static Button* save_button=NULL;
 
+void save_callback(Button* b, void* data) {
+    EditorData * e_data = (EditorData *) data;
+    if (e_data == NULL) {
+        printf("Save: data passed was NULL\n");
+        return;
+    }
+    save_file(e_data);
+}
+
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -61,9 +70,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
     (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
-    NULL, NULL, NULL);
+    NULL, save_callback, NULL, (void *) text_window->data);
     
-
     SDL_StartTextInput(window);
 
     return SDL_APP_CONTINUE;
