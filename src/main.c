@@ -121,6 +121,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                         save_file(text_window->data);
                         break;
                     }
+                    case SDLK_L:{
+                        text_window->display_numbers=!text_window->display_numbers;
+                        break;
+                    }
                 }
             }
             
