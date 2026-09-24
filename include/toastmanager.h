@@ -19,9 +19,9 @@ typedef struct ToastManager {
 
 ToastManager* create_toast_manager();
 //update all of the toasts
-void update_toast_manager(SDL_Renderer* renderer, TTF_Font font, ToastManager* manager);
+void update_toast_manager(ToastManager* manager);
 //draw the toasts
 void draw_toast_manager(SDL_Renderer* renderer, ToastManager* manager);
-void new_toast(UIToast toast);
+void new_toast(ToastManager* tm, UIToast toast);
 
 #endif // TOASTMANAGER.H_H
