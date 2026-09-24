@@ -6,6 +6,7 @@
 #include "text_window.h"
 #include "button.h"
 #include "toast.h"
+#include "globals.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -17,6 +18,9 @@ static Toolbar* tool_bar = NULL;
 static Text_window* text_window=NULL;
 static Button* save_button=NULL;
 static UIToast* test=NULL;
+
+double deltaTime = 0;
+double lastTime = 0;
 
 void save_callback(Button* b, void* data) {
     EditorData * e_data = (EditorData *) data;
@@ -182,9 +186,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+    double currentTime = SDL_GetTicksNS()/1e9;
+    deltaTime = (currentTime)-lastTime;
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     //Update components.
     update_button(save_button);
+    update_toast(test);
     
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -198,6 +205,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     draw_window(renderer, font, text_window);
     draw_toast(renderer, test);
     SDL_RenderPresent(renderer);
+    lastTime = currentTime;
     return SDL_APP_CONTINUE;
 }
 

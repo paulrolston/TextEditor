@@ -1,4 +1,5 @@
 #include "toast.h"
+#include "globals.h"
 
 UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font, 
     const char* text, float x1, float y1, float x2, float y2, float w, float h, 
@@ -27,9 +28,16 @@ UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font,
         SDL_GetTextureSize(t->text_t,&t->text_r.w,&t->text_r.h);
         SDL_DestroySurface(s);
         return t;
-
 }
-void update_toast(UIToast* toast);
+void update_toast(UIToast* toast){
+    float x_diff = toast->x1 - toast->x2;
+    float y_diff = toast->y1 - toast->y2;
+    toast->t+=(2)*deltaTime;
+    if (toast->t > 1) toast->t = 1;
+    double u = toast->t*toast->t*toast->t;
+    toast->toast_r.x = toast->x1 - x_diff*u;
+    toast->toast_r.y = toast->y1 - y_diff*u;
+}
 
 void draw_toast(SDL_Renderer* renderer, UIToast* toast){
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
