@@ -111,7 +111,7 @@ void load_file(EditorData* data){
     fclose(file);
 }
 
-void save_file(EditorData* data){
+void save_file(EditorData* data, ToastManager* t_manager){
     FILE* file = fopen(data->file_path,"w");
     if (file == NULL) {
         printf("Error opening file: [%s]\n", data->file_path);
@@ -121,6 +121,7 @@ void save_file(EditorData* data){
         EditorLine* line = &data->lines[li];
         if (line->text != NULL) fprintf(file, "%s\n",line->text);
     }
+    new_toast(t_manager, create_toast(renderer, font, "Saved!",810,560,690,560,100,30,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE}));
     fclose(file);
 }
 

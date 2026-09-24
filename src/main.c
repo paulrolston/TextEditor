@@ -5,19 +5,16 @@
 #include "toolbar.h"
 #include "text_window.h"
 #include "button.h"
-#include "toast.h"
+#include "toastmanager.h"
 #include "globals.h"
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3_ttf/SDL_ttf.h>
 
-static SDL_Window *window = NULL;
-static SDL_Renderer *renderer = NULL;
-static TTF_Font *font = NULL;
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
+TTF_Font *font = NULL;
 static Toolbar* tool_bar = NULL;
 static Text_window* text_window=NULL;
 static Button* save_button=NULL;
-static UIToast* test=NULL;
+static ToastManager* t_manager;
 
 double deltaTime = 0;
 double lastTime = 0;
@@ -28,7 +25,7 @@ void save_callback(Button* b, void* data) {
         printf("Save: data passed was NULL\n");
         return;
     }
-    save_file(e_data);
+    save_file(e_data, t_manager);
 }
 
 /* This function runs once at startup. */
@@ -78,7 +75,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
     NULL, save_callback, NULL, (void *) text_window->data);
     
-    test = create_toast(renderer, font, "Saved!",810,560,690,560,100,30,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
+    // test = create_toast(renderer, font, "Saved!",810,560,690,560,100,30,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
+
+    t_manager = create_toast_manager();
 
     SDL_StartTextInput(window);
 
@@ -126,7 +125,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                         break;
                     }
                     case SDLK_S:{
-                        save_file(text_window->data);
+                        save_file(text_window->data, t_manager);
                         break;
                     }
                     case SDLK_L:{
@@ -191,11 +190,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     //Update components.
     update_button(save_button);
-    if (test->destroy){
-        SDL_DestroyTexture(test->text_t);
-    }else{
-        update_toast(test);
-    }
+    update_toast_manager(t_manager);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_toolbar(renderer, tool_bar);
@@ -206,7 +201,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     draw_button(renderer, save_button);
     //draw the text window
     draw_window(renderer, font, text_window);
-    draw_toast(renderer, test);
+    draw_toast_manager(renderer, t_manager);
     SDL_RenderPresent(renderer);
     lastTime = currentTime;
     return SDL_APP_CONTINUE;

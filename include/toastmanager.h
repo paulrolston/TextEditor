@@ -13,7 +13,7 @@
 #include <stdbool.h>
 
 typedef struct ToastManager {
-    UIToast* toasts;
+    UIToast** toasts;
     size_t num_toasts;
 } ToastManager;
 
@@ -22,6 +22,6 @@ ToastManager* create_toast_manager();
 void update_toast_manager(ToastManager* manager);
 //draw the toasts
 void draw_toast_manager(SDL_Renderer* renderer, ToastManager* manager);
-void new_toast(ToastManager* tm, UIToast toast);
+void new_toast(ToastManager* tm, UIToast* toast);
 
 #endif // TOASTMANAGER.H_H
