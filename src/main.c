@@ -191,8 +191,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     //Update components.
     update_button(save_button);
-    update_toast(test);
-    
+    if (test->destroy){
+        SDL_DestroyTexture(test->text_t);
+    }else{
+        update_toast(test);
+    }
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_toolbar(renderer, tool_bar);

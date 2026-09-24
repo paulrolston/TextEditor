@@ -25,21 +25,29 @@ UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font,
         SDL_Surface* s = TTF_RenderText_Shaded(font, t->text, 0, t->foreground,(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT});
         t->text_t = SDL_CreateTextureFromSurface(renderer, s);
         t->text_r = (SDL_FRect){0};
+        t->age = 0;
+        t->destroy = false;
         SDL_GetTextureSize(t->text_t,&t->text_r.w,&t->text_r.h);
         SDL_DestroySurface(s);
         return t;
 }
 void update_toast(UIToast* toast){
+    if (toast->destroy) return;
+    toast->age+=deltaTime;
+    if (toast->age >= LIFESPAN) {
+        toast->destroy = true;
+    }
     float x_diff = toast->x1 - toast->x2;
     float y_diff = toast->y1 - toast->y2;
     toast->t+=(2)*deltaTime;
     if (toast->t > 1) toast->t = 1;
-    double u = toast->t*toast->t*toast->t;
+    double u = EASE_IN_CUBE(toast->t);
     toast->toast_r.x = toast->x1 - x_diff*u;
     toast->toast_r.y = toast->y1 - y_diff*u;
 }
 
 void draw_toast(SDL_Renderer* renderer, UIToast* toast){
+    if (toast->destroy) return;
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     SDL_FRect scaled = {
         .x = toast->toast_r.x*scale,
