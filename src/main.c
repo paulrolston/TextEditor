@@ -5,6 +5,7 @@
 #include "toolbar.h"
 #include "text_window.h"
 #include "button.h"
+#include "toast.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -15,6 +16,7 @@ static TTF_Font *font = NULL;
 static Toolbar* tool_bar = NULL;
 static Text_window* text_window=NULL;
 static Button* save_button=NULL;
+static UIToast* test=NULL;
 
 void save_callback(Button* b, void* data) {
     EditorData * e_data = (EditorData *) data;
@@ -72,6 +74,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
     NULL, save_callback, NULL, (void *) text_window->data);
     
+    test = create_toast(renderer, font, "Saved!",810,560,690,560,100,30,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
+
     SDL_StartTextInput(window);
 
     return SDL_APP_CONTINUE;
@@ -192,6 +196,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     draw_button(renderer, save_button);
     //draw the text window
     draw_window(renderer, font, text_window);
+    draw_toast(renderer, test);
     SDL_RenderPresent(renderer);
     return SDL_APP_CONTINUE;
 }

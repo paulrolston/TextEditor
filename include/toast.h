@@ -20,7 +20,7 @@ typedef struct UIToast {
     SDL_Texture* text_t;
 } UIToast;
 
-UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font, const char text, float x1, float y1, float x2, float y2, float w, float h, SDL_Color background, SDL_Color border, SDL_Color foreground);
+UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font, const char* text, float x1, float y1, float x2, float y2, float w, float h, SDL_Color background, SDL_Color border, SDL_Color foreground);
 void update_toast(UIToast* toast);
 void draw_toast(SDL_Renderer* renderer, UIToast* toast);
 

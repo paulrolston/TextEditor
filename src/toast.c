@@ -1,7 +1,7 @@
 #include "toast.h"
 
 UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font, 
-    const char text, float x1, float y1, float x2, float y2, float w, float h, 
+    const char* text, float x1, float y1, float x2, float y2, float w, float h, 
     SDL_Color background, SDL_Color border, SDL_Color foreground){
 
         UIToast* t = malloc(sizeof(UIToast));
@@ -14,7 +14,9 @@ UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font,
         t->background = background;
         t->foreground = foreground;
         t->border = border;
-        t->toast_r = (SDL_FRect){0};
+        t->toast_r = (SDL_FRect){
+            .x=x1,.y=y1,.w=w,.h=h
+        };
         t->t = 0;
         strcpy(t->text, text);
         float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
@@ -24,6 +26,7 @@ UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font,
         t->text_r = (SDL_FRect){0};
         SDL_GetTextureSize(t->text_t,&t->text_r.w,&t->text_r.h);
         SDL_DestroySurface(s);
+        return t;
 
 }
 void update_toast(UIToast* toast);
@@ -39,7 +42,7 @@ void draw_toast(SDL_Renderer* renderer, UIToast* toast){
     SDL_SetRenderDrawColor(renderer, toast->background.r,toast->background.g,toast->background.b,toast->background.a);
     SDL_RenderFillRect(renderer, &scaled);
     SDL_SetRenderDrawColor(renderer, toast->border.r,toast->border.g,toast->border.b,toast->border.a);
-    SDL_RenderFillRect(renderer, &scaled);
+    SDL_RenderRect(renderer, &scaled);
     toast->text_r.x = (toast->toast_r.x + (toast->toast_r.w-toast->text_r.w*(1.0/scale))*0.5);
     toast->text_r.y = (toast->toast_r.y + (toast->toast_r.h-toast->text_r.h*(1.0/scale))*0.5)-1;
     SDL_FRect text_scaled = {
