@@ -47,8 +47,12 @@ void update_toast(UIToast* toast){
     float x_diff = toast->x1 - toast->x2;
     float y_diff = toast->y1 - toast->y2;
     toast->t+=(2)*deltaTime;
-    if (toast->t > 1) toast->t = 1;
-    double u = EASE_IN_CUBE(toast->t);
+    if (toast->t > 1) {
+        toast->t = 1;
+        toast->x1 = toast->x2;
+        toast->y1 = toast->y2;
+    }
+    double u = EASE_OUT_CUBE(toast->t);
     toast->toast_r.x = toast->x1 - x_diff*u;
     toast->toast_r.y = toast->y1 - y_diff*u;
 }

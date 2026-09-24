@@ -12,8 +12,14 @@
 #include <string.h>
 #include <stdbool.h>
 
+typedef struct ToastItem {
+    UIToast* toast;
+    struct ToastItem* next;
+    struct ToastItem* prev;
+} ToastItem;
+
 typedef struct ToastManager {
-    UIToast** toasts;
+    ToastItem* start;
     size_t num_toasts;
 } ToastManager;
 
