@@ -22,6 +22,10 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
     SDL_RenderFillRect(renderer, &(SDL_FRect){window->x*scale,window->y*scale,window->w*scale,window->h*scale});
     if (data == NULL) return;
     float text_height = TTF_GetFontHeight(font);
+    int window_width = 0,window_height = 0;
+    SDL_GetRenderOutputSize(renderer, &window_width,&window_height);
+    window->w = window_width;
+    window->h = window_height-window->y;
     SDL_FRect dst = {.x=5,.y=5,.w=0,.h=0};
     SDL_Rect clip_rect = {
         .y = window->y*scale,
