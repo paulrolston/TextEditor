@@ -37,6 +37,13 @@ void update_toast(UIToast* toast){
     if (toast->age >= LIFESPAN) {
         toast->destroy = true;
     }
+    float mouse_x = 0, mouse_y = 0;
+    SDL_MouseButtonFlags state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    //Update the buttons boolean state variables.
+    if (((mouse_x >= toast->toast_r.x) && (mouse_x <= toast->toast_r.x+toast->toast_r.w)) &&
+        ((mouse_y >= toast->toast_r.y) &&(mouse_y <= toast->toast_r.y+toast->toast_r.h))){
+            if ((state & SDL_BUTTON_LMASK) == 1) {toast->destroy = true; return;}
+        }
     float x_diff = toast->x1 - toast->x2;
     float y_diff = toast->y1 - toast->y2;
     toast->t+=(2)*deltaTime;
