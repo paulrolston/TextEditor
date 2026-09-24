@@ -27,4 +27,26 @@ UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font,
 
 }
 void update_toast(UIToast* toast);
-void draw_toast(SDL_Renderer renderer, UIToast* toast);
+
+void draw_toast(SDL_Renderer* renderer, UIToast* toast){
+    float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
+    SDL_FRect scaled = {
+        .x = toast->toast_r.x*scale,
+        .y = toast->toast_r.y*scale,
+        .w = toast->toast_r.w*scale,
+        .h = toast->toast_r.h*scale,
+    };
+    SDL_SetRenderDrawColor(renderer, toast->background.r,toast->background.g,toast->background.b,toast->background.a);
+    SDL_RenderFillRect(renderer, &scaled);
+    SDL_SetRenderDrawColor(renderer, toast->border.r,toast->border.g,toast->border.b,toast->border.a);
+    SDL_RenderFillRect(renderer, &scaled);
+    toast->text_r.x = (toast->toast_r.x + (toast->toast_r.w-toast->text_r.w*(1.0/scale))*0.5);
+    toast->text_r.y = (toast->toast_r.y + (toast->toast_r.h-toast->text_r.h*(1.0/scale))*0.5)-1;
+    SDL_FRect text_scaled = {
+        .x=toast->text_r.x*scale,
+        .y=toast->text_r.y*scale,
+        .w=toast->text_r.w,
+        .h=toast->text_r.h,
+    };
+    SDL_RenderTexture(renderer, toast->text_t, NULL, &text_scaled);
+}
