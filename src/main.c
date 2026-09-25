@@ -199,7 +199,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     double currentTime = SDL_GetTicksNS()/1e9;
     deltaTime = (currentTime)-lastTime;
-    float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     //Update components.
     update_button(save_button);
     update_toast_manager(t_manager);

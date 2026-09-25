@@ -37,12 +37,12 @@ void scroll_text(Text_window* window, int x_amount, int y_amount){
 void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
     EditorData* data = window->data;
     int line_num_off = (window->display_numbers) ? 40*displayScale : 0;
+    window->w = screenW;
+    window->h = screenH-window->y;
     SDL_SetRenderDrawColor(renderer, window->background.r,window->background.g,window->background.b,window->background.a);
     SDL_RenderFillRect(renderer, &(SDL_FRect){window->x*displayScale,window->y*displayScale,window->w*displayScale,window->h*displayScale});
     if (data == NULL) return;
     float text_height = TTF_GetFontHeight(font);
-    window->w = screenW;
-    window->h = screenH-window->y;
     SDL_FRect dst = {0};
     SDL_Rect clip_rect = {
         .x = window->x*displayScale,
@@ -71,6 +71,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
             snprintf(number,10,"%d",i);
             SDL_Surface *num = TTF_RenderText_Shaded(font, number,strlen(number),window->foreground,window->background);
             num_texture = SDL_CreateTextureFromSurface(renderer, num);
+            SDL_DestroySurface(num);
         }
         SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
         if (dst.w > clip_rect.w) {

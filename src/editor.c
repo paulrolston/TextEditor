@@ -132,6 +132,8 @@ void load_file(EditorData* data){
     data->original_hash = hash_contents(data);
     data->content_hash = data->original_hash;
     data->unsaved = false;
+    data->cursor_x = 0;
+    data->cursor_y = 0;
 }
 
 void save_file(EditorData* data, ToastManager* t_manager){
