@@ -101,6 +101,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             append_line(text_window->data, l, event->text.text);
             break;
         }
+        case SDL_EVENT_MOUSE_WHEEL:{
+            printf("Scroll x:%d, y:%d\n",event->wheel.integer_x, event->wheel.integer_y);
+            printf("Scroll_raw x:%d, y:%d\n", event->wheel.x, event->wheel.y);
+            
+            break;
+        }
         case SDL_EVENT_KEY_DOWN:{
             EditorLine* l = get_line(text_window->data);
             if (l == NULL) break;
