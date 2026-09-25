@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#define TOAST_ERROR 0
+#define TOAST_SUCCESS 1
 
 #define LIFESPAN 2.0
 

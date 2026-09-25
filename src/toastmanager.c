@@ -6,10 +6,21 @@ ToastManager* create_toast_manager(){
     return tm;
 }
 
-//TODO: replace with taking in text, and a toast_type then call create_toast here
-// this will allow the toast_manager to decide where to place toasts (always bottom right for example)
-void new_toast(ToastManager* tm, UIToast* toast){
+void new_toast(ToastManager* tm, const char* text, int type){
     if (tm->num_toasts == MAX_TOASTS) return;
+    UIToast* toast;
+    int t_x1 = screenW+TOAST_GAP;
+    int t_y1 = screenH-TOAST_HEIGHT-TOAST_GAP;
+    int t_x2 = screenW-TOAST_WIDTH-TOAST_GAP;
+    int t_y2 = screenH-TOAST_HEIGHT-TOAST_GAP;
+    switch (type){
+        case TOAST_ERROR:
+        toast = create_toast(renderer, font, "Save failed!",t_x1,t_y1,t_x2,t_y2,TOAST_WIDTH,TOAST_HEIGHT,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,50,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
+        break;
+        case TOAST_SUCCESS:
+        toast = create_toast(renderer, font, "File saved!",t_x1,t_y1,t_x2,t_y2,TOAST_WIDTH,TOAST_HEIGHT,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
+        break;
+    } 
     ToastItem* ti = malloc(sizeof(ToastItem));
     ti->toast = toast;
     

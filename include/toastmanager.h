@@ -28,6 +28,6 @@ ToastManager* create_toast_manager();
 void update_toast_manager(ToastManager* manager);
 //draw the toasts
 void draw_toast_manager(SDL_Renderer* renderer, ToastManager* manager);
-void new_toast(ToastManager* tm, UIToast* toast);
+void new_toast(ToastManager* tm, const char* text, int type);
 
 #endif // TOASTMANAGER.H_H
