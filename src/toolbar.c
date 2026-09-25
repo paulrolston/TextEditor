@@ -54,12 +54,12 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw){
     if (tb->text_t != NULL) SDL_RenderTexture(renderer, tb->text_t,NULL,&tb->text_r);
     if (tw->data->unsaved){
         SDL_FRect rect = {
-            .x = tb->text_r.x+tb->text_r.w,
-            .y = tb->text_r.y,
-            .w = 4*scale,
-            .h = 4*scale,
+            .x = tb->text_r.x+tb->text_r.w + 4*scale,
+            .y = (tb->toolbar_r.y+(tb->toolbar_r.h-3)*0.5)*scale,
+            .w = 6*scale,
+            .h = 6*scale,
         };
-        SDL_SetRenderDrawColor(renderer, 255,255,255,SDL_ALPHA_OPAQUE);
+        SDL_SetRenderDrawColor(renderer, 175,175,255,SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer, &rect);
     }
 }
