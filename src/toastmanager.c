@@ -74,8 +74,6 @@ void update_toast_manager(ToastManager* manager){
         current = next_item;
         if (manager->num_toasts == 0) return;
     }
-    do {
-    } while (current != manager->start);
 }
 void draw_toast_manager(SDL_Renderer* renderer, ToastManager* manager){
     ToastItem* current = manager->start;
