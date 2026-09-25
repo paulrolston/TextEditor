@@ -120,7 +120,10 @@ void save_file(EditorData* data, ToastManager* t_manager){
     }
     for (int li = 0; li < data->line_count;li++){
         EditorLine* line = &data->lines[li];
-        if (line->text != NULL) fprintf(file, "%s\n",line->text);
+        if (line->text != NULL) {
+            //omit new line on last line (stop saving from adding a line to the file.)
+            (li == data->line_count-1) ? fprintf(file, "%s",line->text) : (fprintf(file, "%s\n",line->text));
+        }
     }
     new_toast(t_manager, "File saved!", TOAST_SUCCESS);
     fclose(file);

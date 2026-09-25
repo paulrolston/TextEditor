@@ -9,23 +9,21 @@ Text_window* create_window(int x, int y, int w, int h){
     window->y = y;
     window->w = w;
     window->h = h;
+    printf("y %d\n", window->y);
     window->display_numbers = false;
     return window;
 }
 
 void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
     EditorData* data = window->data;
-    SDL_Window* w = SDL_GetRenderWindow(renderer);
     const int line_num_off = 40;
-    float scale = SDL_GetWindowDisplayScale(w);
+    float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     SDL_SetRenderDrawColor(renderer, window->background.r,window->background.g,window->background.b,window->background.a);
     SDL_RenderFillRect(renderer, &(SDL_FRect){window->x*scale,window->y*scale,window->w*scale,window->h*scale});
     if (data == NULL) return;
     float text_height = TTF_GetFontHeight(font);
-    int window_width = 0,window_height = 0;
-    SDL_GetRenderOutputSize(renderer, &window_width,&window_height);
-    window->w = window_width;
-    window->h = window_height-window->y;
+    window->w = screenW;
+    window->h = screenH-window->y;
     SDL_FRect dst = {.x=5,.y=5,.w=0,.h=0};
     SDL_Rect clip_rect = {
         .y = window->y*scale,
@@ -51,7 +49,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
             SDL_DestroySurface(line);
         }
         SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
-        dst.y = (window->y)*scale+5+text_height*i;
+        dst.y = (window->y+5)*scale+(text_height*i);
         dst.x = (window->x+5)*scale + ((window->display_numbers) ? line_num_off*scale : 0);
         SDL_RenderTexture(renderer,l->texture,NULL,&dst);
         if (window->display_numbers){
@@ -64,7 +62,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
     int width = 0;
     int h = 0;
     TTF_GetStringSize(font,get_line(data)->text,data->cursor_x,&width,&h);
-    float y_off = (window->y)*scale+5+h*data->cursor_y;
+    float y_off = (window->y+5)*scale+h*data->cursor_y;
     if (data->cursor_x == 0) width = 0;
     if (window->display_numbers) {
         width+=line_num_off*scale;
