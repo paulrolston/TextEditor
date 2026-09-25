@@ -14,6 +14,7 @@ typedef struct Text_window {
     EditorData* data;
     bool display_numbers;
     int scrollX, scrollY;
+    int maxHorizontalScroll, maxVerticalScroll;
 } Text_window;
 
 //Return a pointer to a text_window.

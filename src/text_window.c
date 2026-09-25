@@ -12,6 +12,8 @@ Text_window* create_window(int x, int y, int w, int h){
     window->display_numbers = false;
     window->scrollX = 0;
     window->scrollY = 0;
+    window->maxHorizontalScroll = 0;
+    window->maxVerticalScroll = 0;
     return window;
 }
 
@@ -22,11 +24,12 @@ void scroll_text(Text_window* window, int x_amount, int y_amount){
     window->scrollX-=x_amount*5;
     window->scrollY-=y_amount*5;
     
-    int maxVerticalScroll = -(window->data->line_count-1)*text_height/displayScale;
+    window->maxVerticalScroll = -(window->data->line_count-1)*text_height/displayScale;
     
     if (window->scrollX > 0) window->scrollX =0;
     if (window->scrollY > 0) window->scrollY =0;
-    if (window->scrollY <= maxVerticalScroll) window->scrollY = maxVerticalScroll;
+    if (window->scrollY <= window->maxVerticalScroll) window->scrollY = window->maxVerticalScroll;
+    if (window->scrollX <= window->maxHorizontalScroll) window->scrollX = window->maxHorizontalScroll;
 
     return;
 }
@@ -70,6 +73,9 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
             num_texture = SDL_CreateTextureFromSurface(renderer, num);
         }
         SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
+        if (dst.w > clip_rect.w) {
+            window->maxHorizontalScroll = (clip_rect.w-dst.w)/displayScale-50;
+        }
         SDL_RenderTexture(renderer,l->texture,NULL,&dst);
         if (window->display_numbers){
             dst.x = window->x*displayScale;
