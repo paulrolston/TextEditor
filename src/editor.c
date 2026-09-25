@@ -42,6 +42,8 @@ void line_backspace(EditorData* data, EditorLine* line){
             data->cursor_y--;
             data->line_count--;
             data->cursor_x=data->lines[data->cursor_y].length;
+            data->content_hash = hash_contents(data);
+            data->unsaved = (data->content_hash != data->original_hash);
             return;
         }
     }
@@ -66,6 +68,8 @@ void line_backspace(EditorData* data, EditorLine* line){
     data->cursor_x--;
     line->text[line->length] = 0;
     line->dirty = true;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
 }
 
 void append_line(EditorData* data, EditorLine* line, const char* text){
@@ -96,6 +100,8 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
     else if(data->mode == REPLACE && data->cursor_x>line->length) line->length=data->cursor_x;
     line->text[line->length] = 0;
     line->dirty = true;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
 }
 
 XXH64_hash_t hash_contents(EditorData* data){
@@ -114,31 +120,28 @@ XXH64_hash_t hash_contents(EditorData* data){
 
 void load_file(EditorData* data){
     FILE* file = fopen(data->file_path, "r");
-    XXH3_state_t* state = XXH3_createState();
-    XXH3_64bits_reset(state);
     if (file != NULL){
         char line_buf[1024];
         while (fgets(line_buf, 1024, file)){
-            XXH3_64bits_update(state,line_buf,strlen(line_buf));
             line_buf[strcspn(line_buf,"\r\n")] = 0;
             append_line(data,get_line(data),line_buf);
             create_new_line(data);
         }
-        XXH64_hash_t result = XXH3_64bits_digest(state);
-        data->original_hash = result;
     }
-    XXH3_freeState(state);
     fclose(file);
+    data->original_hash = hash_contents(data);
+    data->content_hash = data->original_hash;
+    data->unsaved = false;
 }
 
 void save_file(EditorData* data, ToastManager* t_manager){
-    // if the two hashes are the same, just return without saving.
-    XXH64_hash_t h = hash_contents(data);
-    if (h == data->original_hash){
+    // if there are no unsaved changes, just return;
+    if (!(data->unsaved)){
         new_toast(t_manager, "File saved!", TOAST_SUCCESS);
         return;
     }else{
-        data->original_hash = h;
+        data->original_hash = data->content_hash;
+        data->unsaved = false;
     }
     FILE* file = fopen(data->file_path,"w");
     if (file == NULL) {
@@ -166,4 +169,6 @@ void create_new_line(EditorData* data){
     data->cursor_x = 0;
     *get_line(data) = create_line();
     data->line_count++;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
 }
