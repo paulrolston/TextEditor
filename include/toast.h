@@ -8,9 +8,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define EASE_IN_CUBE(x) x*x*x
-#define EASE_OUT_CUBE(x) 1 - ((1 - x)*(1 - x)*(1 - x))
-#define LIFESPAN 5.0
+
+#define LIFESPAN 2.0
 
 typedef struct UIToast {
     // store 2 positions to interpolate between

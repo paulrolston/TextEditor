@@ -14,34 +14,19 @@ void new_toast(ToastManager* tm, UIToast* toast){
     ti->toast = toast;
     
     if (tm->num_toasts > 0) {
-        ToastItem* curr = tm->start;
-        for (int i = 0; i < tm->num_toasts; i++){
-            ToastItem* next_item = curr->next;
-            curr->toast->x1 = curr->toast->toast_r.x;
-            curr->toast->y1 = curr->toast->toast_r.y;
-            curr->toast->y2 -= 40;
-            curr->toast->t = 0;
-            curr = next_item;
-            if (tm->num_toasts == 0) return;
-        }
         ToastItem* tail = tm->start->prev;
-        //point old head's back pointer to ti
         tm->start->prev = ti;
-        // point ti->next to start and ti->prev to tail
         ti->next = tm->start;
         ti->prev = tail;
-        // point tail->next to ti
         tail->next = ti;
     }else{
         ti->next = ti;
         ti->prev = ti;
     }
-    //reassign start to ti
     tm->start = ti;
     tm->num_toasts++;
 }
 
-//Todo: deleting from middle of list crashes program
 void delete_toast(ToastManager* tm, ToastItem* item){
     if (tm->num_toasts == 0) return;
     if (tm->num_toasts == 1) tm->start = NULL;
@@ -67,6 +52,10 @@ void update_toast_manager(ToastManager* manager){
     for (int i = 0; i < manager->num_toasts; i++){
         if (!current) break;
         ToastItem* next_item = current->next;
+        current->toast->x1 = current->toast->toast_r.x;
+        current->toast->y1 = current->toast->toast_r.y;
+        current->toast->y2 = (screenH-TOAST_HEIGHT-10) - ((current->toast->toast_r.h+10))*i;
+        current->toast->t = 0;
         update_toast(current->toast);
         if (current->toast->destroy){
             delete_toast(manager, current);

@@ -19,8 +19,8 @@ static ToastManager* t_manager;
 double deltaTime = 0;
 double lastTime = 0;
 
-double screenW = 800;
-double screenH = 600;
+int screenW = 800;
+int screenH = 600;
 
 void save_callback(Button* b, void* data) {
     EditorData * e_data = (EditorData *) data;
