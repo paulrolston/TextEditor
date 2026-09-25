@@ -44,13 +44,18 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
     if (data == NULL) return;
     float text_height = TTF_GetFontHeight(font);
     SDL_FRect dst = {0};
-    SDL_Rect clip_rect = {
+    SDL_Rect window_clip_rect = {
         .x = window->x*displayScale,
         .y = window->y*displayScale,
         .w = window->w*displayScale-line_num_off,
         .h = window->h*displayScale,
     };
-    SDL_SetRenderClipRect(renderer, &clip_rect);
+    SDL_Rect text_clip_rect = {
+        .x = window->x*displayScale+line_num_off,
+        .y = window->y*displayScale,
+        .w = window->w*displayScale-line_num_off,
+        .h = window->h*displayScale,
+    };
     SDL_Texture* num_texture = NULL;
     char number[10];
     for (int i = 0; i < data->line_count; i++){
@@ -58,7 +63,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
         dst.x = (window->x+5+window->scrollX)*displayScale + line_num_off;
         if (dst.y >= screenH*displayScale) break; // break since subsequent lines will also be off screen
         if (dst.y <= 0) continue;
-
+        
         EditorLine* l = &(data->lines[i]);
         if (l == NULL) continue;
         if (l->dirty){
@@ -74,12 +79,14 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
             SDL_DestroySurface(num);
         }
         SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
-        if (dst.w > clip_rect.w) {
-            window->maxHorizontalScroll = (clip_rect.w-dst.w)/displayScale-50;
+        if (dst.w > text_clip_rect.w) {
+            window->maxHorizontalScroll = (text_clip_rect.w-dst.w)/displayScale-50;
         }
+        SDL_SetRenderClipRect(renderer, &text_clip_rect);
         SDL_RenderTexture(renderer,l->texture,NULL,&dst);
         if (window->display_numbers){
             dst.x = window->x*displayScale;
+            SDL_SetRenderClipRect(renderer, &window_clip_rect);
             SDL_GetTextureSize(num_texture, &dst.w, &dst.h);
             SDL_RenderTexture(renderer,num_texture,NULL,&dst);
         }
@@ -95,6 +102,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
         SDL_RenderFillRect(renderer,&(SDL_FRect){(window->x)*displayScale+line_num_off, window->y*displayScale,1*displayScale,window->h*displayScale});
     }
     SDL_FRect cursor =  {.x=(window->x+5+window->scrollX)*displayScale+width,.y=y_off,.w=2,.h=h};
+    SDL_SetRenderClipRect(renderer, &text_clip_rect);
     SDL_RenderFillRect(renderer, &cursor);
     SDL_SetRenderClipRect(renderer, NULL);
 }
