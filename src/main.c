@@ -199,7 +199,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     update_toast_manager(t_manager);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    draw_toolbar(renderer, tool_bar);
+    draw_toolbar(renderer, tool_bar, text_window);
     //update button position.
     save_button->button_r.x = tool_bar->toolbar_r.x + (tool_bar->toolbar_r.w - save_button->button_r.w) - 4;
     save_button->button_r.y = tool_bar->toolbar_r.y+4;

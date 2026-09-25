@@ -1,6 +1,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <stddef.h>
+#include <stdint.h>
+#define XXH_STATIC_LINKING_ONLY
+#include "xxhash.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_ttf/SDL_ttf.h>

@@ -42,6 +42,8 @@ void line_backspace(EditorData* data, EditorLine* line){
             data->cursor_y--;
             data->line_count--;
             data->cursor_x=data->lines[data->cursor_y].length;
+            data->content_hash = hash_contents(data);
+            data->unsaved = (data->content_hash != data->original_hash);
             return;
         }
     }
@@ -66,6 +68,8 @@ void line_backspace(EditorData* data, EditorLine* line){
     data->cursor_x--;
     line->text[line->length] = 0;
     line->dirty = true;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
 }
 
 void append_line(EditorData* data, EditorLine* line, const char* text){
@@ -96,6 +100,22 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
     else if(data->mode == REPLACE && data->cursor_x>line->length) line->length=data->cursor_x;
     line->text[line->length] = 0;
     line->dirty = true;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
+}
+
+XXH64_hash_t hash_contents(EditorData* data){
+    XXH3_state_t* state = XXH3_createState();
+    XXH3_64bits_reset(state);
+    for (ssize_t i = 0; i < data->line_count; i++){
+        // add line text
+        XXH3_64bits_update(state, data->lines[i].text, data->lines[i].length);
+        //add new line character (if not last line)
+        if (i != data->line_count-1) XXH3_64bits_update(state, &(char){'\n'}, 1);
+    }
+    XXH64_hash_t r = XXH3_64bits_digest(state);
+    XXH3_freeState(state);
+    return r;
 }
 
 void load_file(EditorData* data){
@@ -109,9 +129,20 @@ void load_file(EditorData* data){
         }
     }
     fclose(file);
+    data->original_hash = hash_contents(data);
+    data->content_hash = data->original_hash;
+    data->unsaved = false;
 }
 
 void save_file(EditorData* data, ToastManager* t_manager){
+    // if there are no unsaved changes, just return;
+    if (!(data->unsaved)){
+        new_toast(t_manager, "File saved!", TOAST_SUCCESS);
+        return;
+    }else{
+        data->original_hash = data->content_hash;
+        data->unsaved = false;
+    }
     FILE* file = fopen(data->file_path,"w");
     if (file == NULL) {
         printf("Error opening file: [%s]\n", data->file_path);
@@ -138,4 +169,6 @@ void create_new_line(EditorData* data){
     data->cursor_x = 0;
     *get_line(data) = create_line();
     data->line_count++;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
 }

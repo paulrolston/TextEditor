@@ -6,6 +6,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <stdlib.h>
 #include <string.h>
+#include "text_window.h"
 
 typedef struct Toolbar {
     SDL_FRect toolbar_r;
@@ -17,6 +18,6 @@ typedef struct Toolbar {
 
 Toolbar* create_toolbar();
 void change_text(Toolbar* tb, char* text, SDL_Renderer* r, TTF_Font* font);
-void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb);
+void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw);
 
 #endif // TOOLBAR.H_H

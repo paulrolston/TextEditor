@@ -24,12 +24,15 @@ typedef struct EditorLine{
 typedef struct EditorData{
     char file_path[PATH_MAX];
     char file_name[50];
+    XXH64_hash_t original_hash;
+    XXH64_hash_t content_hash;
     EditorLine* lines;
     int line_count;
     int line_capacity;
     int cursor_y;
     int cursor_x;
     EditMode mode;
+    bool unsaved;
 } EditorData;
 
 EditorData* init_editor();
@@ -39,5 +42,6 @@ void append_line(EditorData* data, EditorLine* line, const char* text);
 void create_new_line(EditorData* data);
 void load_file(EditorData* data);
 void save_file(EditorData* data, ToastManager* t_manager);
+XXH64_hash_t hash_contents(EditorData* data);
 
 #endif
