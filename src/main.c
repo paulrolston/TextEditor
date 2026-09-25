@@ -18,6 +18,7 @@ static ToastManager* t_manager;
 
 double deltaTime = 0;
 double lastTime = 0;
+float displayScale = 1;
 
 int screenW = 800;
 int screenH = 600;
@@ -58,7 +59,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Couldn't create window and renderer: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
+    displayScale = SDL_GetWindowDisplayScale(window);
     if (!TTF_Init()) {
         SDL_Log("Couldn't initialize SDL_ttf: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
