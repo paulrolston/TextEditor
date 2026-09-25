@@ -18,6 +18,7 @@ static ToastManager* t_manager;
 
 double deltaTime = 0;
 double lastTime = 0;
+float displayScale = 1;
 
 int screenW = 800;
 int screenH = 600;
@@ -58,7 +59,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Couldn't create window and renderer: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
+    displayScale = SDL_GetWindowDisplayScale(window);
     if (!TTF_Init()) {
         SDL_Log("Couldn't initialize SDL_ttf: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
@@ -99,6 +100,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             EditorLine* l = get_line(text_window->data);
             if (l == NULL) break;
             append_line(text_window->data, l, event->text.text);
+            break;
+        }
+        case SDL_EVENT_MOUSE_WHEEL:{
+            scroll_text(text_window, event->wheel.integer_x, event->wheel.integer_y);
+            return SDL_APP_CONTINUE;
             break;
         }
         case SDL_EVENT_KEY_DOWN:{
@@ -193,7 +199,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     double currentTime = SDL_GetTicksNS()/1e9;
     deltaTime = (currentTime)-lastTime;
-    float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     //Update components.
     update_button(save_button);
     update_toast_manager(t_manager);
