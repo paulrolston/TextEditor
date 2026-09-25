@@ -19,6 +19,9 @@ static ToastManager* t_manager;
 double deltaTime = 0;
 double lastTime = 0;
 
+double screenW = 800;
+double screenH = 600;
+
 void save_callback(Button* b, void* data) {
     EditorData * e_data = (EditorData *) data;
     if (e_data == NULL) {
@@ -35,7 +38,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Please enter a file to edit.\n");
         return SDL_APP_FAILURE;
     }
-    text_window = create_window(0,30,800,580);
+    text_window = create_window(0,30,screenW,screenH-30);
     //Get absolute path to the provided file.
     realpath(argv[1], text_window->data->file_path);
     if (text_window->data->file_path == NULL){
@@ -51,7 +54,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     //Now load file contents into our struct
     load_file(text_window->data);
     /* Create the window */
-    if (!SDL_CreateWindowAndRenderer("Text editor", 800, 600, SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer("Text editor", screenW, screenH, SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_Log("Couldn't create window and renderer: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
@@ -89,6 +92,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
     switch (event->type){
         case SDL_EVENT_QUIT: return SDL_APP_SUCCESS;
+        case SDL_EVENT_WINDOW_RESIZED:
+            SDL_GetWindowSize(window, &screenW, &screenH);
+            return SDL_APP_CONTINUE;
         case SDL_EVENT_TEXT_INPUT:{
             EditorLine* l = get_line(text_window->data);
             if (l == NULL) break;

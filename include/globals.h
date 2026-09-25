@@ -10,4 +10,6 @@ extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 extern TTF_Font *font;
 
+extern int screenW, screenH;
+
 #endif // GLOBALS.H_H
