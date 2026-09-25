@@ -41,7 +41,6 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
             SDL_Surface *line = TTF_RenderText_Shaded(font,l->text,l->length,window->foreground,window->background);
             char number[10];
             if (window->display_numbers) {
-                snprintf(number,10,"%-3d",i+1);
                 SDL_Surface *num = TTF_RenderText_Shaded(font, number,strlen(number),window->foreground,window->background);
                 t = SDL_CreateTextureFromSurface(renderer, num);
             }
@@ -50,6 +49,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
         }
         SDL_GetTextureSize(l->texture, &dst.w, &dst.h);
         dst.y = (window->y+5)*scale+(text_height*i);
+        if (dst.y >= screenH*scale) break; // break since subsequent lines will also be off screen
         dst.x = (window->x+5)*scale + ((window->display_numbers) ? line_num_off*scale : 0);
         SDL_RenderTexture(renderer,l->texture,NULL,&dst);
         if (window->display_numbers){
