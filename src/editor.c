@@ -98,6 +98,20 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
     line->dirty = true;
 }
 
+XXH64_hash_t hash_contents(EditorData* data){
+    XXH3_state_t* state = XXH3_createState();
+    XXH3_64bits_reset(state);
+    for (ssize_t i = 0; i < data->line_count; i++){
+        // add line text
+        XXH3_64bits_update(state, data->lines[i].text, data->lines[i].length);
+        //add new line character (if not last line)
+        if (i != data->line_count-1) XXH3_64bits_update(state, &(char){'\n'}, 1);
+    }
+    XXH64_hash_t r = XXH3_64bits_digest(state);
+    XXH3_freeState(state);
+    return r;
+}
+
 void load_file(EditorData* data){
     FILE* file = fopen(data->file_path, "r");
     XXH3_state_t* state = XXH3_createState();
@@ -118,6 +132,14 @@ void load_file(EditorData* data){
 }
 
 void save_file(EditorData* data, ToastManager* t_manager){
+    // if the two hashes are the same, just return without saving.
+    XXH64_hash_t h = hash_contents(data);
+    if (h == data->original_hash){
+        new_toast(t_manager, "File saved!", TOAST_SUCCESS);
+        return;
+    }else{
+        data->original_hash = h;
+    }
     FILE* file = fopen(data->file_path,"w");
     if (file == NULL) {
         printf("Error opening file: [%s]\n", data->file_path);
