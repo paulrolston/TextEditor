@@ -111,16 +111,18 @@ void load_file(EditorData* data){
     fclose(file);
 }
 
-void save_file(EditorData* data){
+void save_file(EditorData* data, ToastManager* t_manager){
     FILE* file = fopen(data->file_path,"w");
     if (file == NULL) {
         printf("Error opening file: [%s]\n", data->file_path);
+        new_toast(t_manager, "Error saving!", TOAST_ERROR);
         return;
     }
     for (int li = 0; li < data->line_count;li++){
         EditorLine* line = &data->lines[li];
         if (line->text != NULL) fprintf(file, "%s\n",line->text);
     }
+    new_toast(t_manager, "File saved!", TOAST_SUCCESS);
     fclose(file);
 }
 
