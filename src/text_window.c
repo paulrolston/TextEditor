@@ -11,7 +11,20 @@ Text_window* create_window(int x, int y, int w, int h){
     window->h = h;
     printf("y %d\n", window->y);
     window->display_numbers = false;
+    window->scrollX = 0;
+    window->scrollY = 0;
     return window;
+}
+
+void scroll_text(Text_window* window, int x_amount, int y_amount){
+    //We need to know if we need to scroll in the x or y direction
+    window->scrollX-=x_amount;
+    window->scrollY-=y_amount;
+
+    if (window->scrollX < 0) window->scrollX =0;
+    if (window->scrollY < 0) window->scrollY =0;
+
+    return;
 }
 
 void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
@@ -24,7 +37,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
     float text_height = TTF_GetFontHeight(font);
     window->w = screenW;
     window->h = screenH-window->y;
-    SDL_FRect dst = {.x=5,.y=5,.w=0,.h=0};
+    SDL_FRect dst = {0};
     SDL_Rect clip_rect = {
         .y = window->y*scale,
         .x = window->x*scale,

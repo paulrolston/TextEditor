@@ -102,9 +102,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             break;
         }
         case SDL_EVENT_MOUSE_WHEEL:{
-            printf("Scroll x:%d, y:%d\n",event->wheel.integer_x, event->wheel.integer_y);
-            printf("Scroll_raw x:%d, y:%d\n", event->wheel.x, event->wheel.y);
-            
+            scroll_text(text_window, event->wheel.integer_x, event->wheel.integer_y);
+            return SDL_APP_CONTINUE;
             break;
         }
         case SDL_EVENT_KEY_DOWN:{
