@@ -24,6 +24,7 @@ typedef struct EditorLine{
 typedef struct EditorData{
     char file_path[PATH_MAX];
     char file_name[50];
+    XXH64_hash_t original_hash;
     EditorLine* lines;
     int line_count;
     int line_capacity;

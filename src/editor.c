@@ -100,14 +100,20 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
 
 void load_file(EditorData* data){
     FILE* file = fopen(data->file_path, "r");
+    XXH3_state_t* state = XXH3_createState();
+    XXH3_64bits_reset(state);
     if (file != NULL){
         char line_buf[1024];
         while (fgets(line_buf, 1024, file)){
+            XXH3_64bits_update(state,line_buf,strlen(line_buf));
             line_buf[strcspn(line_buf,"\r\n")] = 0;
             append_line(data,get_line(data),line_buf);
             create_new_line(data);
         }
+        XXH64_hash_t result = XXH3_64bits_digest(state);
+        data->original_hash = result;
     }
+    XXH3_freeState(state);
     fclose(file);
 }
 
