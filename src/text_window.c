@@ -2,7 +2,8 @@
 
 Text_window* create_window(int x, int y, int w, int h){
     Text_window* window = malloc(sizeof(Text_window));
-    window->background = (SDL_Color){.r=25,.g=25,.b=30,.a=SDL_ALPHA_OPAQUE};
+    
+    window->background = (SDL_Color){.r=35,.g=35,.b=42,.a=SDL_ALPHA_OPAQUE};
     window->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=SDL_ALPHA_OPAQUE};
     window->data = init_editor();
     window->x = x;

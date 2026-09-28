@@ -4,7 +4,7 @@ Button* create_button(SDL_Renderer* rend, TTF_Font* font,
     const char* text, float x, float y, float w, float h, 
     SDL_Color background, SDL_Color border, SDL_Color foreground, 
     ButtonCallback down, ButtonCallback clicked, ButtonCallback released, void* data) {
-    float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(rend));
+    float displayScale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(rend));
     Button* b = malloc(sizeof(Button));
     strcpy(b->text, text);
     b->button_r = (SDL_FRect) {
@@ -57,23 +57,26 @@ void update_button(Button* b){
 }
 
 void draw_button(SDL_Renderer* renderer, Button* b){
-    float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     SDL_FRect scaled = {
-        .x=b->button_r.x*scale,
-        .y=b->button_r.y*scale,
-        .w=b->button_r.w*scale,
-        .h=b->button_r.h*scale,
+        .x=b->button_r.x*displayScale,
+        .y=b->button_r.y*displayScale,
+        .w=b->button_r.w*displayScale,
+        .h=b->button_r.h*displayScale,
     };
-    SDL_SetRenderDrawColor(renderer,b->background.r,b->background.g,b->background.b,b->background.a);
-    SDL_RenderFillRect(renderer, &scaled);
-    SDL_SetRenderDrawColor(renderer,b->border.r,b->border.g,b->border.b,b->border.a);
-    SDL_RenderRect(renderer, &scaled);
-    // shrink text w/h by 1/scale to account for double font size on high dpi display
-    b->text_r.x = (b->button_r.x + (b->button_r.w-b->text_r.w*(1.0/scale))*0.5);
-    b->text_r.y = (b->button_r.y + (b->button_r.h-b->text_r.h*(1.0/scale))*0.5)-1;
+    if (b->background.a != SDL_ALPHA_TRANSPARENT){
+        SDL_SetRenderDrawColor(renderer,b->background.r,b->background.g,b->background.b,b->background.a);
+        SDL_RenderFillRect(renderer, &scaled);
+    }
+    if (b->border.a != SDL_ALPHA_TRANSPARENT){
+        SDL_SetRenderDrawColor(renderer,b->border.r,b->border.g,b->border.b,b->border.a);
+        SDL_RenderRect(renderer, &scaled);
+    }
+    // shrink text w/h by 1/displayScale to account for double font size on high dpi display
+    b->text_r.x = (b->button_r.x + (b->button_r.w-b->text_r.w*(1.0/displayScale))*0.5);
+    b->text_r.y = (b->button_r.y + (b->button_r.h-b->text_r.h*(1.0/displayScale))*0.5)-1;
     SDL_FRect text_scaled = {
-        .x=b->text_r.x*scale,
-        .y=b->text_r.y*scale,
+        .x=b->text_r.x*displayScale,
+        .y=b->text_r.y*displayScale,
         .w=b->text_r.w,
         .h=b->text_r.h,
     };

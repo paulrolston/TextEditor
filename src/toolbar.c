@@ -8,62 +8,66 @@ Toolbar* create_toolbar(){
         .h=30,
         .w=0,
     };
-    tb->text_r = (SDL_FRect) {
-        .x=0,
-        .y=0,
-        .h=0,
-        .w=0,
-    };
-    tb->background = (SDL_Color){.r=15,.g=15,.b=18,.a=255};
-    tb->border = (SDL_Color){.r=200,.g=200,.b=200,.a=255};
+    tb->background = (SDL_Color){.r=20,.g=20,.b=27,.a=255};
     tb->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=255};
-    tb->text_t = NULL;
-    tb->text[0] = 0;
     tb->tab_count = 0;
     return tb;
 }
 
-void add_tab(Toolbar* tb, const char file_path ,ToastManager* tm){
+typedef struct TabCallbackData {
+    Toolbar* tb;
+    int id;
+} TabCallbackData;
+
+void tab_callback(Button* b, void* raw) {
+    TabCallbackData* data = (TabCallbackData*) raw;
+    if (data == NULL) {
+        printf("Tabs: data passed was NULL\n");
+        return;
+    }
+    for (size_t i = 0; i < data->tb->tab_count; i++){
+        data->tb->tabs[i].focused = (i == data->id);
+    }
+}
+
+void add_tab(Toolbar* tb, const char *file_path ,ToastManager* tm){
     if (tb->tab_count == MAX_TABS) {
         new_toast(tm, "Max files.", TOAST_ERROR);
         return;
     }
 
-    int x = 5 + 75*tb->tab_count;
+    int x = 100*tb->tab_count;
     int y = 0;
-    int w = 75;
+    int w = 100;
     int h = 30;
 
-    char* file_name = strrchr(file_path, '/');
+    char* file_name = strrchr(file_path, '/') + 1;
+
+    TabCallbackData* d = malloc(sizeof(TabCallbackData));
+    d->tb = tb;
+    d->id = tb->tab_count;
 
     tb->tabs[tb->tab_count++] = (ToolbarTab){
-        .file_path = file_path,
         .rect = (SDL_FRect) {
             .x = x*displayScale, 
             .y = y*displayScale, 
             .w = w*displayScale, 
             .h = h*displayScale
         },
-        .file_name = (file_name == NULL) ? file_path : file_name,
+        .focused = false,
         .button = create_button(renderer, font, file_name,x,y,w,h,
         (SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){240,240,240,SDL_ALPHA_OPAQUE},
-        NULL, NULL, NULL, NULL),
+        NULL, tab_callback, NULL, (void *) d),
     };
+    strcpy(tb->tabs[tb->tab_count-1].file_path, file_path);
+    strcpy(tb->tabs[tb->tab_count-1].file_name, file_name);
 }
 
-// void change_text(Toolbar* tb, char* new_text, SDL_Renderer* r, TTF_Font* font){
-//     if (strcmp(tb->text, new_text) == 0) return;
-//     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(r));
-//     char text[100] = "Editing: \0";
-//     strcat(text, new_text);
-//     SDL_Surface* file_surface = TTF_RenderText_Shaded(font,text,0,tb->foreground,tb->background);
-//     tb->text_t = SDL_CreateTextureFromSurface(r, file_surface);
-//     SDL_DestroySurface(file_surface);
-//     tb->text_r = (SDL_FRect){.x=tb->toolbar_r.x*scale,.y=tb->toolbar_r.y*scale};
-//     SDL_GetTextureSize(tb->text_t,&tb->text_r.w,&tb->text_r.h);
-//     tb->text_r.y = ((tb->toolbar_r.h*scale)-tb->text_r.h)*0.5;
-//     tb->text_r.x = 8*scale;
-// }
+void update_toolbar(Toolbar* tb){
+    for (size_t i = 0; i < tb->tab_count; i++){
+        update_button(tb->tabs[i].button);
+    }
+}
 
 void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw){
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
@@ -78,17 +82,28 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw){
     };
     SDL_SetRenderDrawColor(renderer, tb->background.r,tb->background.g, tb->background.b,tb->background.a);
     SDL_RenderFillRect(renderer, &scaled);
-    SDL_SetRenderDrawColor(renderer, tb->border.r,tb->border.g, tb->border.b,tb->border.a);
-    SDL_RenderRect(renderer, &scaled);
-    if (tb->text_t != NULL) SDL_RenderTexture(renderer, tb->text_t,NULL,&tb->text_r);
-    if (tw->data->unsaved){
-        SDL_FRect rect = {
-            .x = tb->text_r.x+tb->text_r.w + 4*scale,
-            .y = (tb->toolbar_r.y+(tb->toolbar_r.h-3)*0.5)*scale,
-            .w = 6*scale,
-            .h = 6*scale,
-        };
-        SDL_SetRenderDrawColor(renderer, 175,175,255,SDL_ALPHA_OPAQUE);
-        SDL_RenderFillRect(renderer, &rect);
+    // SDL_RenderRect(renderer, &scaled);
+    for (size_t i = 0; i < tb->tab_count; i++){
+        //button just displays text
+        ToolbarTab* tab = &tb->tabs[i];
+        SDL_FRect tab_r = tab->rect;
+        // unfocussed tabs are smaller and darker
+        if (tab->focused)
+        {
+            SDL_SetRenderDrawColor(renderer, 35,35,42, SDL_ALPHA_OPAQUE);
+        }else{
+            int change = tab->rect.h*0.8;
+            tab_r.h = change;
+            tab_r.y += tab->rect.h-change;
+            //recentre the text
+            tab->button->button_r.h = change/displayScale;
+            tab->button->button_r.y = (tab->rect.h-change)/displayScale;
+            SDL_SetRenderDrawColor(renderer, 27,27,32, SDL_ALPHA_OPAQUE);
+        }
+        SDL_RenderFillRect(renderer, &tab_r);
+        draw_button(renderer,tab->button);
+        //seperating line from tab to text window
+        SDL_SetRenderDrawColor(renderer, 60,60,68,SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(renderer,&(SDL_FRect){scaled.x,scaled.y+scaled.h-(1*displayScale),scaled.w,1*displayScale});
     }
 }

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "globals.h"
 
 typedef struct Button Button;
 
