@@ -90,7 +90,7 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
             break;
         }
         case INSERT:{
-            if (to_end > 0) memmove(&line->text[data->cursor_x+len],&line->text[data->cursor_x],to_end);
+            if (to_end > 0) memmove(&line->text[data->cursor_x+len],&line->text[data->cursor_x],to_end*sizeof(char));
             memcpy(&line->text[data->cursor_x], text, len);
             break;
         }
@@ -169,7 +169,12 @@ void create_new_line(EditorData* data){
     }
     data->cursor_y++;
     data->cursor_x = 0;
-    *get_line(data) = create_line();
+    if (data->mode == INSERT){
+        // move the lines after the cursor down.
+        int lines_to_end = data->line_count-(data->cursor_y);
+        memmove(get_line(data)+1,get_line(data),lines_to_end*sizeof(EditorLine));
+    }
+    data->lines[data->cursor_y] = create_line();
     data->line_count++;
     data->content_hash = hash_contents(data);
     data->unsaved = (data->content_hash != data->original_hash);
