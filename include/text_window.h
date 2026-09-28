@@ -8,20 +8,20 @@
 #include "globals.h"
 
 
-typedef struct Text_window {
+typedef struct TextWindow {
     int x, y, w, h;
     SDL_Color background, foreground;
     EditorData* data;
     bool display_numbers;
     int scrollX, scrollY;
     int maxHorizontalScroll, maxVerticalScroll;
-} Text_window;
+} TextWindow;
 
 //Return a pointer to a text_window.
-Text_window* create_window(int x, int y, int w, int h);
+TextWindow* create_window(int x, int y, int w, int h);
 //Draw the contents of the text being edited on the window.
-void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window);
-
-void scroll_text(Text_window* window, int x_amount, int y_amount);
+void draw_window(SDL_Renderer* renderer, TTF_Font* font, TextWindow* window);
+void scroll_text(TextWindow* window, int x_amount, int y_amount);
+void destroy_window(TextWindow* window);
 
 #endif // TEXT_WINDOW.H_H

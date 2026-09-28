@@ -12,7 +12,6 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 static Toolbar* tool_bar = NULL;
-static Text_window* text_window=NULL;
 // static Button* save_button=NULL;
 static ToastManager* t_manager;
 
@@ -39,21 +38,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Please enter a file to edit.\n");
         return SDL_APP_FAILURE;
     }
-    text_window = create_window(0,30,screenW,screenH-30);
-    //Get absolute path to the provided file.
-    realpath(argv[1], text_window->data->file_path);
-    if (text_window->data->file_path == NULL){
-        printf("Path couldn't be resolved.");
-        return SDL_APP_FAILURE;
-    }
-    char* t = strrchr(text_window->data->file_path, '/');
-    if (t == NULL){
-        strcpy(text_window->data->file_name, text_window->data->file_path);
-    }else{
-        strcpy(text_window->data->file_name, (t+1));
-    }
-    //Now load file contents into our struct
-    load_file(text_window->data);
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Text editor", screenW, screenH, SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_Log("Couldn't create window and renderer: %s\n", SDL_GetError());
@@ -66,24 +50,30 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     /* Open the font */
-    font = TTF_OpenFont("/Users/paul/code/C/Text/fonts/default.ttf", 28.0f);
+    font = TTF_OpenFont("/Users/paul/code/C/Text/fonts/mono-regular.ttf", 28.0f);
     if (!font) {
         SDL_Log("Couldn't open font: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
-    // change_text(tool_bar,text_window->data->file_name,renderer,font);
+    /* Open the font */
     
     // save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
     // (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
-    // NULL, save_callback, NULL, (void *) text_window->data);
-    
-    // test = create_toast(renderer, font, "Saved!",810,560,690,560,100,30,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
+    // NULL, save_callback, NULL, (void *) get_current_window(tool_bar)->data);
     
     t_manager = create_toast_manager();
     tool_bar = create_toolbar();
-    add_tab(tool_bar, text_window->data->file_path, t_manager);
+    //add a 
+    char file_path[PATH_MAX];
+    for (size_t i = 1; i < argc; i++){
+        if (i > 8) break;
+        realpath(argv[i], file_path);
+        // tab creation creates the text window.
+        add_tab(tool_bar, file_path, t_manager);
+        load_file(tool_bar->tabs[i-1].window->data);
+    }
     tool_bar->tabs[0].focused = true;
+    tool_bar->current = &tool_bar->tabs[0];
 
     SDL_StartTextInput(window);
 
@@ -99,95 +89,98 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             SDL_GetWindowSize(window, &screenW, &screenH);
             return SDL_APP_CONTINUE;
         case SDL_EVENT_TEXT_INPUT:{
-            EditorLine* l = get_line(text_window->data);
+            EditorLine* l = get_line(get_current_window(tool_bar)->data);
             if (l == NULL) break;
-            append_line(text_window->data, l, event->text.text);
+            append_line(get_current_window(tool_bar)->data, l, event->text.text);
             break;
         }
         case SDL_EVENT_MOUSE_WHEEL:{
-            scroll_text(text_window, event->wheel.integer_x, event->wheel.integer_y);
+            scroll_text(get_current_window(tool_bar), event->wheel.integer_x, event->wheel.integer_y);
             return SDL_APP_CONTINUE;
             break;
         }
         case SDL_EVENT_KEY_DOWN:{
-            EditorLine* l = get_line(text_window->data);
+            EditorLine* l = get_line(get_current_window(tool_bar)->data);
             if (l == NULL) break;
             if (event->key.key == SDLK_RETURN){
-                create_new_line(text_window->data);
+                create_new_line(get_current_window(tool_bar)->data);
             }
             if (event->key.key == SDLK_BACKSPACE) {
-                line_backspace(text_window->data, l);
+                line_backspace(get_current_window(tool_bar)->data, l);
             }
             if (event->key.mod & (SDL_KMOD_LCTRL|SDL_KMOD_RCTRL)){
                 switch (event->key.key){
                     case SDLK_R:{
-                        if (text_window->data->mode == REPLACE) return SDL_APP_CONTINUE;
+                        if (get_current_window(tool_bar)->data->mode == REPLACE) return SDL_APP_CONTINUE;
                         new_toast(t_manager, "Replace mode", TOAST_SUCCESS);
-                        text_window->data->mode = REPLACE;
+                        get_current_window(tool_bar)->data->mode = REPLACE;
                         break;
                     }
                     case SDLK_I:{
-                        if (text_window->data->mode == INSERT) return SDL_APP_CONTINUE;
+                        if (get_current_window(tool_bar)->data->mode == INSERT) return SDL_APP_CONTINUE;
                         new_toast(t_manager, "Insert mode", TOAST_SUCCESS);
-                        text_window->data->mode = INSERT;
+                        get_current_window(tool_bar)->data->mode = INSERT;
                         break;
                     }
                     case SDLK_P:{
-                        for (int li = 0; li < text_window->data->line_count;li++){
-                            printf("%s\n",text_window->data->lines[li].text);
+                        for (int li = 0; li < get_current_window(tool_bar)->data->line_count;li++){
+                            printf("%s\n",get_current_window(tool_bar)->data->lines[li].text);
                         }
                         break;
                     }
                     case SDLK_S:{
-                        save_file(text_window->data, t_manager);
+                        save_file(get_current_window(tool_bar)->data, t_manager);
                         break;
                     }
                     case SDLK_L:{
-                        text_window->display_numbers=!text_window->display_numbers;
+                        get_current_window(tool_bar)->display_numbers=!get_current_window(tool_bar)->display_numbers;
                         break;
+                    }
+                    case SDLK_W:{
+                        close_tab(tool_bar, t_manager);
                     }
                 }
             }
             
             if (event->key.key == SDLK_UP){
-                if (text_window->data->cursor_y > 0) {
-                    text_window->data->cursor_y--;
-                    int len = get_line(text_window->data)->length;
-                    if (text_window->data->cursor_x > len) {
-                        text_window->data->cursor_x = len;
+                if (get_current_window(tool_bar)->data->cursor_y > 0) {
+                    get_current_window(tool_bar)->data->cursor_y--;
+                    int len = get_line(get_current_window(tool_bar)->data)->length;
+                    if (get_current_window(tool_bar)->data->cursor_x > len) {
+                        get_current_window(tool_bar)->data->cursor_x = len;
                     }
                 }
                 return SDL_APP_CONTINUE;
             }
             if (event->key.key == SDLK_DOWN){
-                if (text_window->data->cursor_y +1 < text_window->data->line_count) {
-                    text_window->data->cursor_y++;
-                    int len = get_line(text_window->data)->length;
-                    if (text_window->data->cursor_x > len) {
-                        text_window->data->cursor_x = len;
+                if (get_current_window(tool_bar)->data->cursor_y +1 < get_current_window(tool_bar)->data->line_count) {
+                    get_current_window(tool_bar)->data->cursor_y++;
+                    int len = get_line(get_current_window(tool_bar)->data)->length;
+                    if (get_current_window(tool_bar)->data->cursor_x > len) {
+                        get_current_window(tool_bar)->data->cursor_x = len;
                     }
                 }
                 return SDL_APP_CONTINUE;
             }
             if (event->key.key == SDLK_LEFT){
-                if (text_window->data->cursor_x == 0) {
-                    if (text_window->data->cursor_y > 0) {
-                        text_window->data->cursor_y--;
-                        text_window->data->cursor_x = text_window->data->lines[text_window->data->cursor_y].length;
+                if (get_current_window(tool_bar)->data->cursor_x == 0) {
+                    if (get_current_window(tool_bar)->data->cursor_y > 0) {
+                        get_current_window(tool_bar)->data->cursor_y--;
+                        get_current_window(tool_bar)->data->cursor_x = get_current_window(tool_bar)->data->lines[get_current_window(tool_bar)->data->cursor_y].length;
                     }
                     return SDL_APP_CONTINUE;
                 }
-                text_window->data->cursor_x--;
+                get_current_window(tool_bar)->data->cursor_x--;
             }
             if (event->key.key == SDLK_RIGHT){
-                if (text_window->data->cursor_x==text_window->data->lines[text_window->data->cursor_y].length){
-                    if (text_window->data->cursor_y < text_window->data->line_count-1){
-                        text_window->data->cursor_x=0;
-                        text_window->data->cursor_y++;
+                if (get_current_window(tool_bar)->data->cursor_x==get_current_window(tool_bar)->data->lines[get_current_window(tool_bar)->data->cursor_y].length){
+                    if (get_current_window(tool_bar)->data->cursor_y < get_current_window(tool_bar)->data->line_count-1){
+                        get_current_window(tool_bar)->data->cursor_x=0;
+                        get_current_window(tool_bar)->data->cursor_y++;
                     }
                     return SDL_APP_CONTINUE;
                 }
-                text_window->data->cursor_x++;
+                get_current_window(tool_bar)->data->cursor_x++;
             }
         }
         break;
@@ -207,14 +200,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     update_toast_manager(t_manager);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    draw_toolbar(renderer, tool_bar, text_window);
-    //update button position.
-    // save_button->button_r.x = tool_bar->toolbar_r.x + (tool_bar->toolbar_r.w - save_button->button_r.w) - 4;
-    // save_button->button_r.y = tool_bar->toolbar_r.y+4;
-    //draw button
-    // draw_button(renderer, save_button);
-    //draw the text window
-    draw_window(renderer, font, text_window);
+    draw_toolbar(renderer, tool_bar);
+    draw_window(renderer, font, get_current_window(tool_bar));
     draw_toast_manager(renderer, t_manager);
     SDL_RenderPresent(renderer);
     lastTime = currentTime;
