@@ -90,7 +90,7 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
             break;
         }
         case INSERT:{
-            if (to_end > 0) memmove(&line->text[data->cursor_x+len],&line->text[data->cursor_x],to_end);
+            if (to_end > 0) memmove(&line->text[data->cursor_x+len],&line->text[data->cursor_x],to_end*sizeof(char));
             memcpy(&line->text[data->cursor_x], text, len);
             break;
         }
@@ -167,9 +167,26 @@ void create_new_line(EditorData* data){
         data->line_capacity*=2;
         data->lines = realloc(data->lines, sizeof(EditorLine)*data->line_capacity);
     }
+    EditorLine* initial_line = get_line(data);
+    int len = initial_line->length-data->cursor_x;
+    char text_buf[len+1];
+    if (len > 0) {
+        strcpy(text_buf, initial_line->text+data->cursor_x);
+        text_buf[len+1] = 0;
+    }
     data->cursor_y++;
     data->cursor_x = 0;
-    *get_line(data) = create_line();
+    if (data->mode == INSERT){
+        // move the lines after the cursor down.
+        int lines_to_end = data->line_count-(data->cursor_y);
+        memmove(get_line(data)+1,get_line(data),lines_to_end*sizeof(EditorLine));
+    }
+    data->lines[data->cursor_y] = create_line();
+    if (len > 0){
+        append_line(data,get_line(data),text_buf);
+        initial_line->length -= len;
+        initial_line->text[initial_line->length] = 0;
+    }
     data->line_count++;
     data->content_hash = hash_contents(data);
     data->unsaved = (data->content_hash != data->original_hash);
