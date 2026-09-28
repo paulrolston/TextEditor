@@ -7,6 +7,7 @@
 #include "button.h"
 #include "toastmanager.h"
 #include "globals.h"
+#include "theme.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -15,6 +16,7 @@ TTF_Font *toolbar_font = NULL;
 static Toolbar* tool_bar = NULL;
 // static Button* save_button=NULL;
 static ToastManager* t_manager;
+UITheme* current_theme = &default_dark;
 
 double deltaTime = 0;
 double lastTime = 0;
@@ -61,7 +63,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Couldn't open font: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    
+
     t_manager = create_toast_manager();
     tool_bar = create_toolbar();
     //add a 
