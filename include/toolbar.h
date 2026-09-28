@@ -6,18 +6,32 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include "button.h"
+#include "toastmanager.h"
 #include "text_window.h"
+
+#define MAX_TABS 8
+
+typedef struct ToolbarTab {
+    char file_path[PATH_MAX];
+    char file_name[50];
+    Button* button;
+    SDL_FRect rect;
+    bool focused;
+} ToolbarTab;
 
 typedef struct Toolbar {
     SDL_FRect toolbar_r;
-    SDL_FRect text_r;
-    char text[50];
-    SDL_Color background, border, foreground;
-    SDL_Texture* text_t;
+    ToolbarTab tabs[MAX_TABS];
+    size_t tab_count;
+    SDL_Color background, foreground;
 } Toolbar;
 
 Toolbar* create_toolbar();
-void change_text(Toolbar* tb, char* text, SDL_Renderer* r, TTF_Font* font);
+void add_tab(Toolbar* tb, const char* file_path, ToastManager* tm);
+// void change_text(Toolbar* tb, char* text, SDL_Renderer* r, TTF_Font* font);
+void update_toolbar(Toolbar* tb);
 void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw);
 
 #endif // TOOLBAR.H_H

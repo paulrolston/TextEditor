@@ -107,7 +107,7 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
 XXH64_hash_t hash_contents(EditorData* data){
     XXH3_state_t* state = XXH3_createState();
     XXH3_64bits_reset(state);
-    for (ssize_t i = 0; i < data->line_count; i++){
+    for (size_t i = 0; i < data->line_count; i++){
         // add line text
         XXH3_64bits_update(state, data->lines[i].text, data->lines[i].length);
         //add new line character (if not last line)

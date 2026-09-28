@@ -13,7 +13,7 @@ SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 static Toolbar* tool_bar = NULL;
 static Text_window* text_window=NULL;
-static Button* save_button=NULL;
+// static Button* save_button=NULL;
 static ToastManager* t_manager;
 
 double deltaTime = 0;
@@ -72,16 +72,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-    tool_bar = create_toolbar();
-    change_text(tool_bar,text_window->data->file_name,renderer,font);
-
-    save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
-    (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
-    NULL, save_callback, NULL, (void *) text_window->data);
+    // change_text(tool_bar,text_window->data->file_name,renderer,font);
+    
+    // save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
+    // (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
+    // NULL, save_callback, NULL, (void *) text_window->data);
     
     // test = create_toast(renderer, font, "Saved!",810,560,690,560,100,30,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
-
+    
     t_manager = create_toast_manager();
+    tool_bar = create_toolbar();
+    add_tab(tool_bar, text_window->data->file_path, t_manager);
+    tool_bar->tabs[0].focused = true;
 
     SDL_StartTextInput(window);
 
@@ -200,16 +202,17 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     double currentTime = SDL_GetTicksNS()/1e9;
     deltaTime = (currentTime)-lastTime;
     //Update components.
-    update_button(save_button);
+    update_toolbar(tool_bar);
+    // update_button(save_button);
     update_toast_manager(t_manager);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_toolbar(renderer, tool_bar, text_window);
     //update button position.
-    save_button->button_r.x = tool_bar->toolbar_r.x + (tool_bar->toolbar_r.w - save_button->button_r.w) - 4;
-    save_button->button_r.y = tool_bar->toolbar_r.y+4;
+    // save_button->button_r.x = tool_bar->toolbar_r.x + (tool_bar->toolbar_r.w - save_button->button_r.w) - 4;
+    // save_button->button_r.y = tool_bar->toolbar_r.y+4;
     //draw button
-    draw_button(renderer, save_button);
+    // draw_button(renderer, save_button);
     //draw the text window
     draw_window(renderer, font, text_window);
     draw_toast_manager(renderer, t_manager);
