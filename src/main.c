@@ -84,9 +84,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     tool_bar = create_toolbar();
     //add a 
     char file_path[PATH_MAX];
-    realpath(argv[1], file_path);
-    // tab creation creates the text window.
-    add_tab(tool_bar, file_path, t_manager);
+    for (size_t i = 1; i < argc; i++){
+        realpath(argv[i], file_path);
+        // tab creation creates the text window.
+        add_tab(tool_bar, file_path, t_manager);
+        load_file(tool_bar->tabs[i-1].window->data);
+    }
     tool_bar->tabs[0].focused = true;
     tool_bar->current = &tool_bar->tabs[0];
 
