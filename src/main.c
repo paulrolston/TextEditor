@@ -120,13 +120,13 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                 switch (event->key.key){
                     case SDLK_R:{
                         if (text_window->data->mode == REPLACE) return SDL_APP_CONTINUE;
-                        printf("Now in replace mode!\n");
+                        new_toast(t_manager, "Replace mode", TOAST_SUCCESS);
                         text_window->data->mode = REPLACE;
                         break;
                     }
                     case SDLK_I:{
                         if (text_window->data->mode == INSERT) return SDL_APP_CONTINUE;
-                        printf("Now in insert mode!\n");
+                        new_toast(t_manager, "Insert mode", TOAST_SUCCESS);
                         text_window->data->mode = INSERT;
                         break;
                     }
