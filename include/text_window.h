@@ -20,7 +20,7 @@ typedef struct TextWindow {
 //Return a pointer to a text_window.
 TextWindow* create_window(int x, int y, int w, int h);
 //Draw the contents of the text being edited on the window.
-void draw_window(SDL_Renderer* renderer, TTF_Font* font, TextWindow* window);
+void draw_window(SDL_Renderer* renderer, TextWindow* window);
 void scroll_text(TextWindow* window, int x_amount, int y_amount);
 void destroy_window(TextWindow* window);
 

@@ -18,7 +18,9 @@
 extern double deltaTime;
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
-extern TTF_Font *font;
+extern TTF_Font *text_font;
+extern TTF_Font *toolbar_font;
+// extern TTF_Font *text;
 extern float displayScale;
 
 extern int screenW, screenH;
