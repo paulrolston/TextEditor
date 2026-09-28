@@ -15,6 +15,10 @@
 #define TOAST_WIDTH 100
 #define TOAST_GAP 10
 
+typedef enum TextAlignment{
+    LEFT, CENTRE, RIGHT
+}  TextAlignment;
+
 extern double deltaTime;
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
