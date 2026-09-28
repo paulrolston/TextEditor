@@ -12,7 +12,6 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 static Toolbar* tool_bar = NULL;
-// static TextWindow* text_window=NULL;
 // static Button* save_button=NULL;
 static ToastManager* t_manager;
 
@@ -39,21 +38,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Please enter a file to edit.\n");
         return SDL_APP_FAILURE;
     }
-    // text_window = create_window(0,30,screenW,screenH-30);
-    // //Get absolute path to the provided file.
-    // realpath(argv[1], get_current_window(tool_bar)->data->file_path);
-    // if (get_current_window(tool_bar)->data->file_path == NULL){
-    //     printf("Path couldn't be resolved.");
-    //     return SDL_APP_FAILURE;
-    // }
-    // char* t = strrchr(get_current_window(tool_bar)->data->file_path, '/');
-    // if (t == NULL){
-    //     strcpy(get_current_window(tool_bar)->data->file_name, get_current_window(tool_bar)->data->file_path);
-    // }else{
-    //     strcpy(get_current_window(tool_bar)->data->file_name, (t+1));
-    // }
-    // //Now load file contents into our struct
-    // load_file(get_current_window(tool_bar)->data);
     /* Create the window */
     if (!SDL_CreateWindowAndRenderer("Text editor", screenW, screenH, SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_Log("Couldn't create window and renderer: %s\n", SDL_GetError());
@@ -71,14 +55,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Couldn't open font: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
-    // change_text(tool_bar,get_current_window(tool_bar)->data->file_name,renderer,font);
     
     // save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
     // (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
     // NULL, save_callback, NULL, (void *) get_current_window(tool_bar)->data);
-    
-    // test = create_toast(renderer, font, "Saved!",810,560,690,560,100,30,(SDL_Color){40,40,50,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE});
     
     t_manager = create_toast_manager();
     tool_bar = create_toolbar();
@@ -220,12 +200,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_toolbar(renderer, tool_bar);
-    //update button position.
-    // save_button->button_r.x = tool_bar->toolbar_r.x + (tool_bar->toolbar_r.w - save_button->button_r.w) - 4;
-    // save_button->button_r.y = tool_bar->toolbar_r.y+4;
-    //draw button
-    // draw_button(renderer, save_button);
-    //draw the text window
     draw_window(renderer, font, get_current_window(tool_bar));
     draw_toast_manager(renderer, t_manager);
     SDL_RenderPresent(renderer);
