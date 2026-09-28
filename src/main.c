@@ -16,7 +16,7 @@ TTF_Font *toolbar_font = NULL;
 static Toolbar* tool_bar = NULL;
 // static Button* save_button=NULL;
 static ToastManager* t_manager;
-UITheme* current_theme = &default_light;
+UITheme* current_theme = &default_dark;
 
 double deltaTime = 0;
 double lastTime = 0;
@@ -113,6 +113,14 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             }
             if (event->key.mod & (SDL_KMOD_LCTRL|SDL_KMOD_RCTRL)){
                 switch (event->key.key){
+                    case SDLK_T:{
+                        if (current_theme == &default_dark){
+                            current_theme = &default_light;
+                        }else{
+                            current_theme = &default_dark;
+                        }
+                        break;
+                    }
                     case SDLK_R:{
                         if (get_current_window(tool_bar)->data->mode == REPLACE) return SDL_APP_CONTINUE;
                         new_toast(t_manager, "Replace mode", TOAST_SUCCESS);
