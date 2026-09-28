@@ -8,6 +8,7 @@
 #include <string.h>
 #include <limits.h>
 #include "button.h"
+#include "toastmanager.h"
 #include "text_window.h"
 
 #define MAX_TABS 8
@@ -15,9 +16,8 @@
 typedef struct ToolbarTab {
     char file_path[PATH_MAX];
     char file_name[50];
-    SDL_Texture* text_texture;
-    Button button;
-    SDL_FRect rect, text_rect;
+    Button* button;
+    SDL_FRect rect;
 } ToolbarTab;
 
 typedef struct Toolbar {
@@ -32,7 +32,7 @@ typedef struct Toolbar {
 
 Toolbar* create_toolbar();
 void add_tab(Toolbar* tb, const char* file_path);
-void change_text(Toolbar* tb, char* text, SDL_Renderer* r, TTF_Font* font);
+// void change_text(Toolbar* tb, char* text, SDL_Renderer* r, TTF_Font* font);
 void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw);
 
 #endif // TOOLBAR.H_H

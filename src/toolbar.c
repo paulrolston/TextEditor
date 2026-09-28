@@ -19,22 +19,51 @@ Toolbar* create_toolbar(){
     tb->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=255};
     tb->text_t = NULL;
     tb->text[0] = 0;
+    tb->tab_count = 0;
     return tb;
 }
 
-void change_text(Toolbar* tb, char* new_text, SDL_Renderer* r, TTF_Font* font){
-    if (strcmp(tb->text, new_text) == 0) return;
-    float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(r));
-    char text[100] = "Editing: \0";
-    strcat(text, new_text);
-    SDL_Surface* file_surface = TTF_RenderText_Shaded(font,text,0,tb->foreground,tb->background);
-    tb->text_t = SDL_CreateTextureFromSurface(r, file_surface);
-    SDL_DestroySurface(file_surface);
-    tb->text_r = (SDL_FRect){.x=tb->toolbar_r.x*scale,.y=tb->toolbar_r.y*scale};
-    SDL_GetTextureSize(tb->text_t,&tb->text_r.w,&tb->text_r.h);
-    tb->text_r.y = ((tb->toolbar_r.h*scale)-tb->text_r.h)*0.5;
-    tb->text_r.x = 8*scale;
+void add_tab(Toolbar* tb, const char file_path ,ToastManager* tm){
+    if (tb->tab_count == MAX_TABS) {
+        new_toast(tm, "Max files.", TOAST_ERROR);
+        return;
+    }
+
+    int x = 5 + 75*tb->tab_count;
+    int y = 0;
+    int w = 75;
+    int h = 30;
+
+    char* file_name = strrchr(file_path, '/');
+
+    tb->tabs[tb->tab_count++] = (ToolbarTab){
+        .file_path = file_path,
+        .rect = (SDL_FRect) {
+            .x = x*displayScale, 
+            .y = y*displayScale, 
+            .w = w*displayScale, 
+            .h = h*displayScale
+        },
+        .file_name = (file_name == NULL) ? file_path : file_name,
+        .button = create_button(renderer, font, file_name,x,y,w,h,
+        (SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){240,240,240,SDL_ALPHA_OPAQUE},
+        NULL, NULL, NULL, NULL),
+    };
 }
+
+// void change_text(Toolbar* tb, char* new_text, SDL_Renderer* r, TTF_Font* font){
+//     if (strcmp(tb->text, new_text) == 0) return;
+//     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(r));
+//     char text[100] = "Editing: \0";
+//     strcat(text, new_text);
+//     SDL_Surface* file_surface = TTF_RenderText_Shaded(font,text,0,tb->foreground,tb->background);
+//     tb->text_t = SDL_CreateTextureFromSurface(r, file_surface);
+//     SDL_DestroySurface(file_surface);
+//     tb->text_r = (SDL_FRect){.x=tb->toolbar_r.x*scale,.y=tb->toolbar_r.y*scale};
+//     SDL_GetTextureSize(tb->text_t,&tb->text_r.w,&tb->text_r.h);
+//     tb->text_r.y = ((tb->toolbar_r.h*scale)-tb->text_r.h)*0.5;
+//     tb->text_r.x = 8*scale;
+// }
 
 void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw){
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
