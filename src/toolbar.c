@@ -110,6 +110,20 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
         }
         SDL_RenderFillRect(renderer, &tab_r);
         draw_button(renderer,tab->button);
+        if (tab->window->data->unsaved){
+            int unsaved_w = 6*displayScale;
+            int unsaved_h = 6*displayScale;
+            int spacing = (tab_r.h-unsaved_w)*0.5;
+            SDL_FRect unsaved_r = {
+                .x = tab_r.x + tab_r.w - unsaved_w - spacing,
+                .y = tab_r.y + spacing,
+                .w = unsaved_w,
+                .h = unsaved_h,
+            };
+            SDL_SetRenderDrawColor(renderer, 100,100,200, SDL_ALPHA_OPAQUE);
+            SDL_RenderFillRect(renderer, &unsaved_r);
+        }
+
         //seperating line from tab to text window
         SDL_SetRenderDrawColor(renderer, 60,60,68,SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer,&(SDL_FRect){scaled.x,scaled.y+scaled.h-(1*displayScale),scaled.w,1*displayScale});

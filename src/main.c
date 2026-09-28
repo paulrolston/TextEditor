@@ -85,6 +85,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     //add a 
     char file_path[PATH_MAX];
     for (size_t i = 1; i < argc; i++){
+        if (i > 8) break;
         realpath(argv[i], file_path);
         // tab creation creates the text window.
         add_tab(tool_bar, file_path, t_manager);
