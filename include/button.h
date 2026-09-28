@@ -22,6 +22,7 @@ typedef struct Button {
     ButtonCallback released_cb;
     void* callback_data;
     char text[25];
+    TextAlignment align;
     SDL_Color background, border, foreground;
     bool isHovered, isPressed, isReleased;
 } Button;
@@ -29,7 +30,10 @@ typedef struct Button {
 /*
 Create a button object, pass coordinates in unscaled values, i.e raw numbers.
 */
-Button* create_button(SDL_Renderer* rend, TTF_Font* font, const char* text, float x, float y, float w, float h, SDL_Color background, SDL_Color border, SDL_Color foreground, ButtonCallback down, ButtonCallback clicked, ButtonCallback released, void* data);
+Button* create_button(SDL_Renderer* rend, TTF_Font* font, const char* text, TextAlignment align, 
+                    float x, float y, float w, float h, 
+                    SDL_Color background, SDL_Color border, SDL_Color foreground, 
+                    ButtonCallback down, ButtonCallback clicked, ButtonCallback released, void* data);
 
 //Draws the button, automatically scales with high DPI
 void draw_button(SDL_Renderer* r, Button* b);

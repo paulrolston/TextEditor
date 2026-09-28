@@ -1,7 +1,7 @@
 #include "button.h"
 
 Button* create_button(SDL_Renderer* rend, TTF_Font* font, 
-    const char* text, float x, float y, float w, float h, 
+    const char* text, TextAlignment align, float x, float y, float w, float h, 
     SDL_Color background, SDL_Color border, SDL_Color foreground, 
     ButtonCallback down, ButtonCallback clicked, ButtonCallback released, void* data) {
     float displayScale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(rend));
@@ -13,6 +13,7 @@ Button* create_button(SDL_Renderer* rend, TTF_Font* font,
     b->background = background;
     b->border = border;
     b->foreground = foreground;
+    b->align = align;
     //transparent text background.
     SDL_Surface* s = TTF_RenderText_Shaded(font, b->text, 0, b->foreground,(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT});
     b->text_t = SDL_CreateTextureFromSurface(rend, s);
@@ -72,8 +73,22 @@ void draw_button(SDL_Renderer* renderer, Button* b){
         SDL_RenderRect(renderer, &scaled);
     }
     // shrink text w/h by 1/displayScale to account for double font size on high dpi display
-    b->text_r.x = (b->button_r.x + (b->button_r.w-b->text_r.w*(1.0/displayScale))*0.5);
+    switch (b->align){
+        case LEFT:{
+            b->text_r.x = (b->button_r.x+6*displayScale);
+            break;
+        }
+        case RIGHT:{
+            b->text_r.x = (b->button_r.x + (b->button_r.w-b->text_r.w*(1.0/displayScale) - 6*displayScale));
+            break;
+        }
+        case CENTRE:{
+            b->text_r.x = (b->button_r.x + (b->button_r.w-b->text_r.w*(1.0/displayScale))*0.5);
+            break;
+        }
+    }
     b->text_r.y = (b->button_r.y + (b->button_r.h-b->text_r.h*(1.0/displayScale))*0.5)-1;
+    
     SDL_FRect text_scaled = {
         .x=b->text_r.x*displayScale,
         .y=b->text_r.y*displayScale,
