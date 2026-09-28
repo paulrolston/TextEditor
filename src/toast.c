@@ -2,8 +2,7 @@
 #include "globals.h"
 
 UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font, 
-    const char* text, float x1, float y1, float x2, float y2, float w, float h, 
-    SDL_Color background, SDL_Color border, SDL_Color foreground){
+    const char* text, float x1, float y1, float x2, float y2, float w, float h, int type){
 
         UIToast* t = malloc(sizeof(UIToast));
         t->x1 = x1;
@@ -12,9 +11,7 @@ UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font,
         t->y2 = y2;
         t->w = w;
         t->h = h;
-        t->background = background;
-        t->foreground = foreground;
-        t->border = border;
+        t->type = type;
         t->toast_r = (SDL_FRect){
             .x=x1,.y=y1,.w=w,.h=h
         };
@@ -22,7 +19,7 @@ UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font,
         strcpy(t->text, text);
         float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
         //Render text to a texture;
-        SDL_Surface* s = TTF_RenderText_Shaded(font, t->text, 0, t->foreground,(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT});
+        SDL_Surface* s = TTF_RenderText_Shaded(font, t->text, 0, current_theme->toast_foreground,(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT});
         t->text_t = SDL_CreateTextureFromSurface(renderer, s);
         t->text_r = (SDL_FRect){0};
         t->age = 0;
@@ -66,9 +63,18 @@ void draw_toast(SDL_Renderer* renderer, UIToast* toast){
         .w = toast->toast_r.w*scale,
         .h = toast->toast_r.h*scale,
     };
-    SDL_SetRenderDrawColor(renderer, toast->background.r,toast->background.g,toast->background.b,toast->background.a);
+    SDL_SetRenderDrawColor(renderer, current_theme->toast_background.r,current_theme->toast_background.g,current_theme->toast_background.b,current_theme->toast_background.a);
     SDL_RenderFillRect(renderer, &scaled);
-    SDL_SetRenderDrawColor(renderer, toast->border.r,toast->border.g,toast->border.b,toast->border.a);
+    switch (toast->type){
+        case TOAST_ERROR:{
+            SDL_SetRenderDrawColor(renderer, current_theme->toast_error_border.r,current_theme->toast_error_border.g,current_theme->toast_error_border.b,current_theme->toast_error_border.a);
+            break;
+        }
+        case TOAST_SUCCESS:{
+            SDL_SetRenderDrawColor(renderer, current_theme->toast_success_border.r,current_theme->toast_success_border.g,current_theme->toast_success_border.b,current_theme->toast_success_border.a);
+            break;
+        }
+    }
     SDL_RenderRect(renderer, &scaled);
     toast->text_r.x = (toast->toast_r.x + (toast->toast_r.w-toast->text_r.w*(1.0/scale))*0.5);
     toast->text_r.y = (toast->toast_r.y + (toast->toast_r.h-toast->text_r.h*(1.0/scale))*0.5)-1;

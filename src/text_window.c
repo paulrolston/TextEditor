@@ -3,8 +3,8 @@
 TextWindow* create_window(int x, int y, int w, int h){
     TextWindow* window = malloc(sizeof(TextWindow));
     
-    window->background = (SDL_Color){.r=35,.g=35,.b=42,.a=SDL_ALPHA_OPAQUE};
-    window->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=SDL_ALPHA_OPAQUE};
+    // current_theme->text_window_background = (SDL_Color){.r=35,.g=35,.b=42,.a=SDL_ALPHA_OPAQUE};
+    // current_theme->text_window_foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=SDL_ALPHA_OPAQUE};
     window->data = init_editor();
     window->x = x;
     window->y = y;
@@ -40,7 +40,7 @@ void draw_window(SDL_Renderer* renderer, TextWindow* window){
     int line_num_off = (window->display_numbers) ? 40*displayScale : 0;
     window->w = screenW;
     window->h = screenH-window->y;
-    SDL_SetRenderDrawColor(renderer, window->background.r,window->background.g,window->background.b,window->background.a);
+    SDL_SetRenderDrawColor(renderer, current_theme->text_window_background.r,current_theme->text_window_background.g,current_theme->text_window_background.b,current_theme->text_window_background.a);
     SDL_RenderFillRect(renderer, &(SDL_FRect){window->x*displayScale,window->y*displayScale,window->w*displayScale,window->h*displayScale});
     if (data == NULL) return;
     float text_height = TTF_GetFontHeight(text_font);
@@ -69,13 +69,13 @@ void draw_window(SDL_Renderer* renderer, TextWindow* window){
         if (l == NULL) continue;
         if (l->dirty){
             if (l->texture != NULL) SDL_DestroyTexture(l->texture);
-            SDL_Surface *line = TTF_RenderText_Shaded(text_font,l->text,l->length,window->foreground,window->background);
+            SDL_Surface *line = TTF_RenderText_Shaded(text_font,l->text,l->length,current_theme->text_window_foreground,current_theme->text_window_background);
             l->texture = SDL_CreateTextureFromSurface(renderer, line);
             SDL_DestroySurface(line);
         }
         if (window->display_numbers) {
             snprintf(number,10,"%d",i+1);
-            SDL_Surface *num = TTF_RenderText_Shaded(text_font, number,strlen(number),window->foreground,window->background);
+            SDL_Surface *num = TTF_RenderText_Shaded(text_font, number,strlen(number),current_theme->line_number_foreground,current_theme->text_window_background);
             num_texture = SDL_CreateTextureFromSurface(renderer, num);
             SDL_DestroySurface(num);
         }
@@ -92,7 +92,7 @@ void draw_window(SDL_Renderer* renderer, TextWindow* window){
             SDL_RenderTexture(renderer,num_texture,NULL,&dst);
         }
     }
-    SDL_SetRenderDrawColor(renderer, window->foreground.r,window->foreground.g,window->foreground.b,window->foreground.a);
+    SDL_SetRenderDrawColor(renderer, current_theme->text_window_foreground.r,current_theme->text_window_foreground.g,current_theme->text_window_foreground.b,current_theme->text_window_foreground.a);
     int width = 0;
     int h = 0;
     TTF_GetStringSize(text_font,get_line(data)->text,data->cursor_x,&width,&h);
@@ -100,8 +100,10 @@ void draw_window(SDL_Renderer* renderer, TextWindow* window){
     if (data->cursor_x == 0) width = 0;
     if (window->display_numbers) {
         width+=line_num_off;
+        SDL_SetRenderDrawColor(renderer, current_theme->line_number_separator.r, current_theme->line_number_separator.g, current_theme->line_number_separator.b, current_theme->line_number_separator.a);
         SDL_RenderFillRect(renderer,&(SDL_FRect){(window->x)*displayScale+line_num_off, window->y*displayScale,1*displayScale,window->h*displayScale});
     }
+    SDL_SetRenderDrawColor(renderer, current_theme->text_cursor.r,current_theme->text_cursor.g,current_theme->text_cursor.b,current_theme->text_cursor.a);
     SDL_FRect cursor =  {.x=(window->x+5+window->scrollX)*displayScale+width,.y=y_off,.w=2,.h=h};
     SDL_SetRenderClipRect(renderer, &text_clip_rect);
     SDL_RenderFillRect(renderer, &cursor);
