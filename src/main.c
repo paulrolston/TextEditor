@@ -50,11 +50,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     /* Open the font */
-    font = TTF_OpenFont("/Users/paul/code/C/Text/fonts/default.ttf", 28.0f);
+    font = TTF_OpenFont("/Users/paul/code/C/Text/fonts/mono-regular.ttf", 28.0f);
     if (!font) {
         SDL_Log("Couldn't open font: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+    /* Open the font */
     
     // save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
     // (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
