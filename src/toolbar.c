@@ -8,8 +8,6 @@ Toolbar* create_toolbar(){
         .h=30,
         .w=0,
     };
-    tb->background = (SDL_Color){.r=20,.g=20,.b=27,.a=255};
-    tb->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=255};
     tb->tab_count = 0;
     tb->current = NULL;
     return tb;
@@ -57,7 +55,7 @@ void add_tab(Toolbar* tb, const char *file_path ,ToastManager* tm){
         },
         .focused = false,
         .button = create_button(renderer, toolbar_font, file_name, LEFT ,x,y,w,h,
-            (SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){240,240,240,SDL_ALPHA_OPAQUE},
+            (SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},current_theme->toolbar_tab_foreground,
             NULL, tab_callback, NULL, (void *) d),
         .window = window,
         .id = tb->tab_count-1,
@@ -110,7 +108,7 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
         .w = tb->toolbar_r.w*scale,
         .h = tb->toolbar_r.h*scale,
     };
-    SDL_SetRenderDrawColor(renderer, tb->background.r,tb->background.g, tb->background.b,tb->background.a);
+    SDL_SetRenderDrawColor(renderer, current_theme->toolbar_background.r,current_theme->toolbar_background.g, current_theme->toolbar_background.b,current_theme->toolbar_background.a);
     SDL_RenderFillRect(renderer, &scaled);
     // SDL_RenderRect(renderer, &scaled);
     for (size_t i = 0; i < tb->tab_count; i++){
@@ -122,7 +120,7 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
         // unfocussed tabs are smaller and darker
         if (tab->focused)
         {
-            SDL_SetRenderDrawColor(renderer, 35,35,42, SDL_ALPHA_OPAQUE);
+            SDL_SetRenderDrawColor(renderer, current_theme->toolbar_tab_focus.r,current_theme->toolbar_tab_focus.g,current_theme->toolbar_tab_focus.b, current_theme->toolbar_tab_focus.a);
         }else{
             int change = tab->rect.h*0.8;
             tab_r.h = change;
@@ -130,7 +128,7 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
             //recentre the text
             tab->button->button_r.h = change/displayScale;
             tab->button->button_r.y = (tab->rect.h-change)/displayScale;
-            SDL_SetRenderDrawColor(renderer, 27,27,32, SDL_ALPHA_OPAQUE);
+            SDL_SetRenderDrawColor(renderer, current_theme->toolbar_tab_unfocus.r,current_theme->toolbar_tab_unfocus.g,current_theme->toolbar_tab_unfocus.b, current_theme->toolbar_tab_unfocus.a);
         }
         SDL_RenderFillRect(renderer, &tab_r);
         draw_button(renderer,tab->button);
@@ -144,12 +142,12 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
                 .w = unsaved_w,
                 .h = unsaved_h,
             };
-            SDL_SetRenderDrawColor(renderer, 100,100,200, SDL_ALPHA_OPAQUE);
+            SDL_SetRenderDrawColor(renderer, current_theme->unsaved_indicator.r,current_theme->unsaved_indicator.g,current_theme->unsaved_indicator.b,current_theme->unsaved_indicator.a);
             SDL_RenderFillRect(renderer, &unsaved_r);
         }
-
+        
         //seperating line from tab to text window
-        SDL_SetRenderDrawColor(renderer, 60,60,68,SDL_ALPHA_OPAQUE);
+        SDL_SetRenderDrawColor(renderer, current_theme->toolbar_separator.r,current_theme->toolbar_separator.g,current_theme->toolbar_separator.b,current_theme->toolbar_separator.a);
         SDL_RenderFillRect(renderer,&(SDL_FRect){scaled.x,scaled.y+scaled.h-(1*displayScale),scaled.w,1*displayScale});
     }
 }

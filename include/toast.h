@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "theme.h"
 
 #define TOAST_ERROR 0
 #define TOAST_SUCCESS 1
@@ -14,20 +15,20 @@
 #define LIFESPAN 2.0
 
 typedef struct UIToast {
+    int type;
     // store 2 positions to interpolate between
     // so we can start off screen and slide
     float x1, x2, y1, y2, w, h;
     float t; // progress of lerp
     double age;
     char text[50]; // text should not be more than a sentance.
-    SDL_Color background, border, foreground;
     SDL_FRect toast_r;
     SDL_FRect text_r;
     SDL_Texture* text_t;
     bool destroy;
 } UIToast;
 
-UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font, const char* text, float x1, float y1, float x2, float y2, float w, float h, SDL_Color background, SDL_Color border, SDL_Color foreground);
+UIToast* create_toast(SDL_Renderer* renderer, TTF_Font* font, const char* text, float x1, float y1, float x2, float y2, float w, float h, int type);
 void update_toast(UIToast* toast);
 void draw_toast(SDL_Renderer* renderer, UIToast* toast);
 

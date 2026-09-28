@@ -16,7 +16,7 @@ TTF_Font *toolbar_font = NULL;
 static Toolbar* tool_bar = NULL;
 // static Button* save_button=NULL;
 static ToastManager* t_manager;
-UITheme* current_theme = &default_dark;
+UITheme* current_theme = &default_light;
 
 double deltaTime = 0;
 double lastTime = 0;

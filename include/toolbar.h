@@ -30,7 +30,6 @@ typedef struct Toolbar {
     ToolbarTab tabs[MAX_TABS];
     size_t tab_count;
     ToolbarTab* current;
-    SDL_Color background, foreground;
 } Toolbar;
 
 Toolbar* create_toolbar();

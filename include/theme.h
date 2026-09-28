@@ -7,6 +7,7 @@
 typedef struct UITheme {
     SDL_Color text_window_background;
     SDL_Color text_window_foreground;
+    SDL_Color text_cursor;
     SDL_Color line_number_foreground;
     SDL_Color line_number_separator;
     SDL_Color toolbar_background;

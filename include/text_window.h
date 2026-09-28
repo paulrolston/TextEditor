@@ -6,11 +6,12 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include "editor.h"
 #include "globals.h"
+#include "theme.h"
 
 
 typedef struct TextWindow {
     int x, y, w, h;
-    SDL_Color background, foreground;
+    // SDL_Color background, foreground;
     EditorData* data;
     bool display_numbers;
     int scrollX, scrollY;
