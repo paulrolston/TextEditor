@@ -21,7 +21,7 @@ TextWindow* create_window(int x, int y, int w, int h){
 void scroll_text(TextWindow* window, int x_amount, int y_amount){
     //We need to know if we need to scroll in the x or y direction
     //TODO; update this with a scroll_velocity, to make scroll feel better
-    float text_height = TTF_GetFontHeight(font);
+    float text_height = TTF_GetFontHeight(text_font);
     window->scrollX-=x_amount*5;
     window->scrollY-=y_amount*5;
     
@@ -35,7 +35,7 @@ void scroll_text(TextWindow* window, int x_amount, int y_amount){
     return;
 }
 
-void draw_window(SDL_Renderer* renderer, TTF_Font* font, TextWindow* window){
+void draw_window(SDL_Renderer* renderer, TextWindow* window){
     EditorData* data = window->data;
     int line_num_off = (window->display_numbers) ? 40*displayScale : 0;
     window->w = screenW;
@@ -43,7 +43,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, TextWindow* window){
     SDL_SetRenderDrawColor(renderer, window->background.r,window->background.g,window->background.b,window->background.a);
     SDL_RenderFillRect(renderer, &(SDL_FRect){window->x*displayScale,window->y*displayScale,window->w*displayScale,window->h*displayScale});
     if (data == NULL) return;
-    float text_height = TTF_GetFontHeight(font);
+    float text_height = TTF_GetFontHeight(text_font);
     SDL_FRect dst = {0};
     SDL_Rect window_clip_rect = {
         .x = window->x*displayScale,
@@ -69,13 +69,13 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, TextWindow* window){
         if (l == NULL) continue;
         if (l->dirty){
             if (l->texture != NULL) SDL_DestroyTexture(l->texture);
-            SDL_Surface *line = TTF_RenderText_Shaded(font,l->text,l->length,window->foreground,window->background);
+            SDL_Surface *line = TTF_RenderText_Shaded(text_font,l->text,l->length,window->foreground,window->background);
             l->texture = SDL_CreateTextureFromSurface(renderer, line);
             SDL_DestroySurface(line);
         }
         if (window->display_numbers) {
-            snprintf(number,10,"%d",i);
-            SDL_Surface *num = TTF_RenderText_Shaded(font, number,strlen(number),window->foreground,window->background);
+            snprintf(number,10,"%d",i+1);
+            SDL_Surface *num = TTF_RenderText_Shaded(text_font, number,strlen(number),window->foreground,window->background);
             num_texture = SDL_CreateTextureFromSurface(renderer, num);
             SDL_DestroySurface(num);
         }
@@ -95,7 +95,7 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, TextWindow* window){
     SDL_SetRenderDrawColor(renderer, window->foreground.r,window->foreground.g,window->foreground.b,window->foreground.a);
     int width = 0;
     int h = 0;
-    TTF_GetStringSize(font,get_line(data)->text,data->cursor_x,&width,&h);
+    TTF_GetStringSize(text_font,get_line(data)->text,data->cursor_x,&width,&h);
     float y_off = (window->y+5+window->scrollY)*displayScale+h*data->cursor_y;
     if (data->cursor_x == 0) width = 0;
     if (window->display_numbers) {

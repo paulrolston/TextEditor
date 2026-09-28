@@ -56,7 +56,7 @@ void add_tab(Toolbar* tb, const char *file_path ,ToastManager* tm){
             .h = h*displayScale
         },
         .focused = false,
-        .button = create_button(renderer, font, file_name,x,y,w,h,
+        .button = create_button(renderer, toolbar_font, file_name,x,y,w,h,
             (SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){240,240,240,SDL_ALPHA_OPAQUE},
             NULL, tab_callback, NULL, (void *) d),
         .window = window,

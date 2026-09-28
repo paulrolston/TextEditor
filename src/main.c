@@ -10,7 +10,8 @@
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
-TTF_Font *font = NULL;
+TTF_Font *text_font = NULL;
+TTF_Font *toolbar_font = NULL;
 static Toolbar* tool_bar = NULL;
 // static Button* save_button=NULL;
 static ToastManager* t_manager;
@@ -49,17 +50,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-    /* Open the font */
-    font = TTF_OpenFont("/Users/paul/code/C/Text/fonts/mono-regular.ttf", 28.0f);
-    if (!font) {
+    text_font = TTF_OpenFont("/Users/paul/code/C/Text/fonts/mono-regular.ttf",24.0);
+    if (!text_font) {
         SDL_Log("Couldn't open font: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    /* Open the font */
-    
-    // save_button = create_button(renderer, font, "Save",0,0,75,tool_bar->toolbar_r.h-8,
-    // (SDL_Color){100,100,115,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},(SDL_Color){240,240,255,SDL_ALPHA_OPAQUE},
-    // NULL, save_callback, NULL, (void *) get_current_window(tool_bar)->data);
+
+    toolbar_font = TTF_OpenFont("/Users/paul/code/C/Text/fonts/mono-bold.ttf", 24.0f);
+    if (!toolbar_font) {
+        SDL_Log("Couldn't open font: %s\n", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
     
     t_manager = create_toast_manager();
     tool_bar = create_toolbar();
@@ -201,7 +202,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_toolbar(renderer, tool_bar);
-    draw_window(renderer, font, get_current_window(tool_bar));
+    draw_window(renderer, get_current_window(tool_bar));
     draw_toast_manager(renderer, t_manager);
     SDL_RenderPresent(renderer);
     lastTime = currentTime;
@@ -211,8 +212,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    if (font) {
-        TTF_CloseFont(font);
+    if (text_font) {
+        TTF_CloseFont(text_font);
+    }
+    if (toolbar_font){
+        TTF_CloseFont(toolbar_font);
     }
     TTF_Quit();
 }
