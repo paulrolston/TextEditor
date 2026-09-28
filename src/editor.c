@@ -169,11 +169,9 @@ void create_new_line(EditorData* data){
     }
     EditorLine* initial_line = get_line(data);
     int len = initial_line->length-data->cursor_x;
-    printf("len: %d\n", len);
     char text_buf[len+1];
     if (len > 0) {
         strcpy(text_buf, initial_line->text+data->cursor_x);
-        printf("text: [%s]\n", text_buf);
         text_buf[len+1] = 0;
     }
     data->cursor_y++;
