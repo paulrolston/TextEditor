@@ -42,6 +42,8 @@ void line_backspace(EditorData* data, EditorLine* line){
             data->cursor_y--;
             data->line_count--;
             data->cursor_x=data->lines[data->cursor_y].length;
+            data->content_hash = hash_contents(data);
+            data->unsaved = (data->content_hash != data->original_hash);
             return;
         }
     }
@@ -66,6 +68,8 @@ void line_backspace(EditorData* data, EditorLine* line){
     data->cursor_x--;
     line->text[line->length] = 0;
     line->dirty = true;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
 }
 
 void append_line(EditorData* data, EditorLine* line, const char* text){
@@ -86,7 +90,7 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
             break;
         }
         case INSERT:{
-            if (to_end > 0) memmove(&line->text[data->cursor_x+len],&line->text[data->cursor_x],to_end);
+            if (to_end > 0) memmove(&line->text[data->cursor_x+len],&line->text[data->cursor_x],to_end*sizeof(char));
             memcpy(&line->text[data->cursor_x], text, len);
             break;
         }
@@ -96,6 +100,22 @@ void append_line(EditorData* data, EditorLine* line, const char* text){
     else if(data->mode == REPLACE && data->cursor_x>line->length) line->length=data->cursor_x;
     line->text[line->length] = 0;
     line->dirty = true;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
+}
+
+XXH64_hash_t hash_contents(EditorData* data){
+    XXH3_state_t* state = XXH3_createState();
+    XXH3_64bits_reset(state);
+    for (ssize_t i = 0; i < data->line_count; i++){
+        // add line text
+        XXH3_64bits_update(state, data->lines[i].text, data->lines[i].length);
+        //add new line character (if not last line)
+        if (i != data->line_count-1) XXH3_64bits_update(state, &(char){'\n'}, 1);
+    }
+    XXH64_hash_t r = XXH3_64bits_digest(state);
+    XXH3_freeState(state);
+    return r;
 }
 
 void load_file(EditorData* data){
@@ -109,18 +129,36 @@ void load_file(EditorData* data){
         }
     }
     fclose(file);
+    data->original_hash = hash_contents(data);
+    data->content_hash = data->original_hash;
+    data->unsaved = false;
+    data->cursor_x = 0;
+    data->cursor_y = 0;
 }
 
-void save_file(EditorData* data){
+void save_file(EditorData* data, ToastManager* t_manager){
+    // if there are no unsaved changes, just return;
+    if (!(data->unsaved)){
+        new_toast(t_manager, "File saved!", TOAST_SUCCESS);
+        return;
+    }else{
+        data->original_hash = data->content_hash;
+        data->unsaved = false;
+    }
     FILE* file = fopen(data->file_path,"w");
     if (file == NULL) {
         printf("Error opening file: [%s]\n", data->file_path);
+        new_toast(t_manager, "Error saving!", TOAST_ERROR);
         return;
     }
     for (int li = 0; li < data->line_count;li++){
         EditorLine* line = &data->lines[li];
-        if (line->text != NULL) fprintf(file, "%s\n",line->text);
+        if (line->text != NULL) {
+            //omit new line on last line (stop saving from adding a line to the file.)
+            (li == data->line_count-1) ? fprintf(file, "%s",line->text) : (fprintf(file, "%s\n",line->text));
+        }
     }
+    new_toast(t_manager, "File saved!", TOAST_SUCCESS);
     fclose(file);
 }
 
@@ -129,8 +167,27 @@ void create_new_line(EditorData* data){
         data->line_capacity*=2;
         data->lines = realloc(data->lines, sizeof(EditorLine)*data->line_capacity);
     }
+    EditorLine* initial_line = get_line(data);
+    int len = initial_line->length-data->cursor_x;
+    char text_buf[len+1];
+    if (len > 0) {
+        strcpy(text_buf, initial_line->text+data->cursor_x);
+        text_buf[len+1] = 0;
+    }
     data->cursor_y++;
     data->cursor_x = 0;
-    *get_line(data) = create_line();
+    if (data->mode == INSERT){
+        // move the lines after the cursor down.
+        int lines_to_end = data->line_count-(data->cursor_y);
+        memmove(get_line(data)+1,get_line(data),lines_to_end*sizeof(EditorLine));
+    }
+    data->lines[data->cursor_y] = create_line();
+    if (len > 0){
+        append_line(data,get_line(data),text_buf);
+        initial_line->length -= len;
+        initial_line->text[initial_line->length] = 0;
+    }
     data->line_count++;
+    data->content_hash = hash_contents(data);
+    data->unsaved = (data->content_hash != data->original_hash);
 }

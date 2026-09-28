@@ -36,7 +36,7 @@ void change_text(Toolbar* tb, char* new_text, SDL_Renderer* r, TTF_Font* font){
     tb->text_r.x = 8*scale;
 }
 
-void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
+void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw){
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     int w, h;
     SDL_GetWindowSize(SDL_GetRenderWindow(renderer), &w, &h);
@@ -52,4 +52,14 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
     SDL_SetRenderDrawColor(renderer, tb->border.r,tb->border.g, tb->border.b,tb->border.a);
     SDL_RenderRect(renderer, &scaled);
     if (tb->text_t != NULL) SDL_RenderTexture(renderer, tb->text_t,NULL,&tb->text_r);
+    if (tw->data->unsaved){
+        SDL_FRect rect = {
+            .x = tb->text_r.x+tb->text_r.w + 4*scale,
+            .y = (tb->toolbar_r.y+(tb->toolbar_r.h-3)*0.5)*scale,
+            .w = 6*scale,
+            .h = 6*scale,
+        };
+        SDL_SetRenderDrawColor(renderer, 175,175,255,SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(renderer, &rect);
+    }
 }
