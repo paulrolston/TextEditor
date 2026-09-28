@@ -11,6 +11,7 @@ Toolbar* create_toolbar(){
     tb->background = (SDL_Color){.r=20,.g=20,.b=27,.a=255};
     tb->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=255};
     tb->tab_count = 0;
+    tb->current = NULL;
     return tb;
 }
 
@@ -27,6 +28,9 @@ void tab_callback(Button* b, void* raw) {
     }
     for (size_t i = 0; i < data->tb->tab_count; i++){
         data->tb->tabs[i].focused = (i == data->id);
+        if (i == data->id){
+            data->tb->current = &data->tb->tabs[i];
+        }
     }
 }
 
@@ -47,6 +51,8 @@ void add_tab(Toolbar* tb, const char *file_path ,ToastManager* tm){
     d->tb = tb;
     d->id = tb->tab_count;
 
+    TextWindow* window = create_window(0,30,screenW,screenH-30);
+    
     tb->tabs[tb->tab_count++] = (ToolbarTab){
         .rect = (SDL_FRect) {
             .x = x*displayScale, 
@@ -56,11 +62,13 @@ void add_tab(Toolbar* tb, const char *file_path ,ToastManager* tm){
         },
         .focused = false,
         .button = create_button(renderer, font, file_name,x,y,w,h,
-        (SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){240,240,240,SDL_ALPHA_OPAQUE},
-        NULL, tab_callback, NULL, (void *) d),
-    };
+            (SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){240,240,240,SDL_ALPHA_OPAQUE},
+            NULL, tab_callback, NULL, (void *) d),
+        .window = window,
+        };
     strcpy(tb->tabs[tb->tab_count-1].file_path, file_path);
     strcpy(tb->tabs[tb->tab_count-1].file_name, file_name);
+    strcpy(window->data->file_path, file_path);
 }
 
 void update_toolbar(Toolbar* tb){
@@ -69,7 +77,7 @@ void update_toolbar(Toolbar* tb){
     }
 }
 
-void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw){
+void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
     int w, h;
     SDL_GetWindowSize(SDL_GetRenderWindow(renderer), &w, &h);
@@ -106,4 +114,8 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb, Text_window* tw){
         SDL_SetRenderDrawColor(renderer, 60,60,68,SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer,&(SDL_FRect){scaled.x,scaled.y+scaled.h-(1*displayScale),scaled.w,1*displayScale});
     }
+}
+
+TextWindow* get_current_window(Toolbar* tb){
+    return tb->current->window;
 }

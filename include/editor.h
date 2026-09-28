@@ -23,7 +23,6 @@ typedef struct EditorLine{
 
 typedef struct EditorData{
     char file_path[PATH_MAX];
-    char file_name[50];
     XXH64_hash_t original_hash;
     XXH64_hash_t content_hash;
     EditorLine* lines;

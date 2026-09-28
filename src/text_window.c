@@ -1,7 +1,7 @@
 #include "text_window.h"
 
-Text_window* create_window(int x, int y, int w, int h){
-    Text_window* window = malloc(sizeof(Text_window));
+TextWindow* create_window(int x, int y, int w, int h){
+    TextWindow* window = malloc(sizeof(TextWindow));
     
     window->background = (SDL_Color){.r=35,.g=35,.b=42,.a=SDL_ALPHA_OPAQUE};
     window->foreground = (SDL_Color){.r=240,.g=240,.b=240,.a=SDL_ALPHA_OPAQUE};
@@ -18,7 +18,7 @@ Text_window* create_window(int x, int y, int w, int h){
     return window;
 }
 
-void scroll_text(Text_window* window, int x_amount, int y_amount){
+void scroll_text(TextWindow* window, int x_amount, int y_amount){
     //We need to know if we need to scroll in the x or y direction
     //TODO; update this with a scroll_velocity, to make scroll feel better
     float text_height = TTF_GetFontHeight(font);
@@ -35,7 +35,7 @@ void scroll_text(Text_window* window, int x_amount, int y_amount){
     return;
 }
 
-void draw_window(SDL_Renderer* renderer, TTF_Font* font, Text_window* window){
+void draw_window(SDL_Renderer* renderer, TTF_Font* font, TextWindow* window){
     EditorData* data = window->data;
     int line_num_off = (window->display_numbers) ? 40*displayScale : 0;
     window->w = screenW;
