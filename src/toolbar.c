@@ -39,20 +39,15 @@ void add_tab(Toolbar* tb, const char *file_path ,ToastManager* tm){
         new_toast(tm, "Max files.", TOAST_ERROR);
         return;
     }
-
     int x = 100*tb->tab_count;
     int y = 0;
     int w = 100;
     int h = 30;
-
     char* file_name = strrchr(file_path, '/') + 1;
-
     TabCallbackData* d = malloc(sizeof(TabCallbackData));
     d->tb = tb;
     d->id = tb->tab_count;
-
     TextWindow* window = create_window(0,30,screenW,screenH-30);
-    
     tb->tabs[tb->tab_count++] = (ToolbarTab){
         .rect = (SDL_FRect) {
             .x = x*displayScale, 
@@ -65,10 +60,36 @@ void add_tab(Toolbar* tb, const char *file_path ,ToastManager* tm){
             (SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){0,0,0,SDL_ALPHA_TRANSPARENT},(SDL_Color){240,240,240,SDL_ALPHA_OPAQUE},
             NULL, tab_callback, NULL, (void *) d),
         .window = window,
+        .id = tb->tab_count-1,
         };
     strcpy(tb->tabs[tb->tab_count-1].file_path, file_path);
     strcpy(tb->tabs[tb->tab_count-1].file_name, file_name);
     strcpy(window->data->file_path, file_path);
+}
+
+void close_tab(Toolbar* tb, ToastManager* tm){
+    ToolbarTab* tab = tb->current;
+    if (tab->window->data->unsaved){
+        new_toast(tm, "Save changes!", TOAST_ERROR);
+        return;
+    }
+    if (tb->tab_count == 1) {
+        new_toast(tm, "Last file!", TOAST_ERROR);
+        return;
+    }
+    destroy_window(tab->window);
+    destroy_button(tab->button);
+    int to_end = (tb->tab_count-1)-tab->id;
+    if (to_end > 0){
+        for (ssize_t i = tab->id; i<tb->tab_count;i++){
+            tb->tabs[i].id--;
+        }
+        memmove(tb->current, tb->current+1, to_end*sizeof(ToolbarTab));
+    }
+    int next = (tab->id == tb->tab_count-1) ? 0 : tab->id;
+    tb->current = &tb->tabs[next];
+    tb->current->focused = true;
+    tb->tab_count--;
 }
 
 void update_toolbar(Toolbar* tb){
@@ -76,6 +97,7 @@ void update_toolbar(Toolbar* tb){
         update_button(tb->tabs[i].button);
     }
 }
+
 
 void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
     float scale = SDL_GetWindowDisplayScale(SDL_GetRenderWindow(renderer));
@@ -94,6 +116,8 @@ void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb){
     for (size_t i = 0; i < tb->tab_count; i++){
         //button just displays text
         ToolbarTab* tab = &tb->tabs[i];
+        tab->rect.x = (100*i)*displayScale;
+        tab->button->button_r.x = (100*i);
         SDL_FRect tab_r = tab->rect;
         // unfocussed tabs are smaller and darker
         if (tab->focused)

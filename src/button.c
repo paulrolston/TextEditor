@@ -82,3 +82,8 @@ void draw_button(SDL_Renderer* renderer, Button* b){
     };
     SDL_RenderTexture(renderer, b->text_t,NULL, &text_scaled);
 }
+
+void destroy_button(Button* b){
+    if (b->text_t) SDL_DestroyTexture(b->text_t);
+    free(b);
+}

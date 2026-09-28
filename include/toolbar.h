@@ -22,6 +22,7 @@ typedef struct ToolbarTab {
     SDL_FRect rect;
     bool focused;
     TextWindow* window;
+    int id;
 } ToolbarTab;
 
 typedef struct Toolbar {
@@ -37,7 +38,7 @@ void add_tab(Toolbar* tb, const char* file_path, ToastManager* tm);
 // void change_text(Toolbar* tb, char* text, SDL_Renderer* r, TTF_Font* font);
 void update_toolbar(Toolbar* tb);
 void draw_toolbar(SDL_Renderer* renderer, Toolbar* tb);
-
+void close_tab(Toolbar* tb, ToastManager* tm);
 TextWindow* get_current_window(Toolbar* tb);
 
 #endif // TOOLBAR.H_H

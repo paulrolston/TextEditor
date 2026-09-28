@@ -42,5 +42,7 @@ void create_new_line(EditorData* data);
 void load_file(EditorData* data);
 void save_file(EditorData* data, ToastManager* t_manager);
 XXH64_hash_t hash_contents(EditorData* data);
+void destroy_editor(EditorData* data);
+
 
 #endif

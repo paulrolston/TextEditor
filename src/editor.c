@@ -191,3 +191,12 @@ void create_new_line(EditorData* data){
     data->content_hash = hash_contents(data);
     data->unsaved = (data->content_hash != data->original_hash);
 }
+
+void destroy_editor(EditorData* data){
+    
+    for (size_t i = 0; i < data->line_count; i++){
+        if (data->lines[i].texture) SDL_DestroyTexture(data->lines[i].texture);
+    }
+    if (data->lines) free(data->lines);
+    free(data);
+}

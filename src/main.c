@@ -155,6 +155,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                         get_current_window(tool_bar)->display_numbers=!get_current_window(tool_bar)->display_numbers;
                         break;
                     }
+                    case SDLK_W:{
+                        close_tab(tool_bar, t_manager);
+                    }
                 }
             }
             

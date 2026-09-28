@@ -36,5 +36,6 @@ void draw_button(SDL_Renderer* r, Button* b);
 
 //Update state of button by testing mouse overlap
 void update_button(Button* b);
+void destroy_button(Button* b);
 
 #endif // BUTTON.H_H

@@ -107,3 +107,10 @@ void draw_window(SDL_Renderer* renderer, TTF_Font* font, TextWindow* window){
     SDL_RenderFillRect(renderer, &cursor);
     SDL_SetRenderClipRect(renderer, NULL);
 }
+
+void destroy_window(TextWindow* window){
+    if (window->data){
+        destroy_editor(window->data);
+    }
+    free(window);
+}
