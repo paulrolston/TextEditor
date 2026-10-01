@@ -105,6 +105,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         case SDL_EVENT_KEY_DOWN:{
             EditorLine* l = get_line(get_current_window(tool_bar)->data);
             if (l == NULL) break;
+            if (event->key.key == SDLK_TAB){
+                EditorData* d = get_current_window(tool_bar)->data;
+                append_line(d,get_line(d),"  ");
+            }
             if (event->key.key == SDLK_RETURN){
                 create_new_line(get_current_window(tool_bar)->data);
             }
