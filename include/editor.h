@@ -38,6 +38,8 @@ EditorData* init_editor();
 EditorLine* get_line(EditorData* data);
 void line_backspace(EditorData* data, EditorLine* line);
 void append_line(EditorData* data, EditorLine* line, const char* text);
+void indent_line(EditorData* data, EditorLine* line);
+void unindent_line(EditorData* data, EditorLine* line);
 void create_new_line(EditorData* data);
 void load_file(EditorData* data);
 void save_file(EditorData* data, ToastManager* t_manager);

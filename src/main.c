@@ -107,7 +107,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             if (l == NULL) break;
             if (event->key.key == SDLK_TAB){
                 EditorData* d = get_current_window(tool_bar)->data;
-                append_line(d,get_line(d),"  ");
+                if (event->key.mod & SDL_KMOD_SHIFT){
+                    unindent_line(d,get_line(d));
+                }else{
+                    indent_line(d,get_line(d));
+                }
             }
             if (event->key.key == SDLK_RETURN){
                 create_new_line(get_current_window(tool_bar)->data);
