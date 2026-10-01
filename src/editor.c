@@ -200,3 +200,17 @@ void destroy_editor(EditorData* data){
     if (data->lines) free(data->lines);
     free(data);
 }
+
+void indent_line(EditorData* data, EditorLine* line){
+    append_line(data, line, "  ");
+}
+
+void unindent_line(EditorData* data, EditorLine* line){
+    if (strcmp(line->text, "") == 1) return;
+    if (line->length < 2) return;
+    if (line->text[0] == ' ' && line->text[1] == ' '){
+        memmove(line->text, line->text+2, line->length-2);
+        line->length-=2;
+        if (data->cursor_x > 1) data->cursor_x-=2;
+    }
+}
